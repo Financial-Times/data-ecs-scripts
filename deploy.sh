@@ -53,17 +53,17 @@ make_task_definition(){
 				}
 			],
 			"mountPoints": [
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/var/log/apps",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/usr/local/dropwizard/data",
-                  "readOnly": false
-                }
-            ]
+				{
+				  "sourceVolume": "ecs-logs",
+				  "containerPath": "/var/log/apps",
+				  "readOnly": false
+				},
+				{
+				  "sourceVolume": "ecs-data",
+				  "containerPath": "/usr/local/dropwizard/data",
+				  "readOnly": false
+				}
+			]
 		}
 	]'
 
