@@ -23,6 +23,8 @@ test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${5:-${AWS_ACCOUNT_N
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${6:-"eu-west-1"}
 test -z ${ARGS[--memory]} && ARGS[--memory]=${7:-"256"}
 test -z ${ARGS[--cpu]} && ARGS[--cpu]=${8:-"10"}
+test -z ${ARGS[--port1]} && ARGS[--port1]=${9:-"1000"}
+test -z ${ARGS[--port2]} && ARGS[--port2]=${10:-"1001"}
 
 deploy() {
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]} --service ${ARGS[--ecs_service]} --task-definition $revision \
@@ -42,13 +44,30 @@ make_task_definition(){
 			"cpu": %s,
 			"portMappings": [
 				{
-					"containerPort": 80
+					"containerPort": 8080,
+					"hostPort": %s
+				},
+				{
+					"containerPort": 8081,
+					"hostPort": %s
 				}
-			]
+			],
+			"mountPoints": [
+                {
+                  "sourceVolume": "ecs-logs",
+                  "containerPath": "/var/log/apps",
+                  "readOnly": false
+                },
+                {
+                  "sourceVolume": "ecs-data",
+                  "containerPath": "/usr/local/dropwizard/data",
+                  "readOnly": false
+                }
+            ]
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 register_task_definition() {
