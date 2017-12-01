@@ -15,7 +15,7 @@ source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
 
 test -z ${ARGS[--service_name]} && ARGS[--service_name]=${1:-${SERVICE_NAME}}
-test -z ${ARGS[--image_version]} && ARGS[--image_version]=${2:-${CIRCLE_BUILD_NUM}}
+test -z ${ARGS[--image_version]} && ARGS[--image_version]=${2:-1.0.${CIRCLE_BUILD_NUM}}
 test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${3:-${AWS_DEV_ACCOUNT_NUMBER}}
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${4:-"eu-west-1"}
 test -z ${ARGS[--ecr_endpoint]} && ARGS[--ecr_endpoint]=${5:-${AWS_DEV_ACCOUNT_NUMBER}.dkr.ecr.eu-west-1.amazonaws.com}
