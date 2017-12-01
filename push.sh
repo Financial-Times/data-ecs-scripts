@@ -18,7 +18,7 @@ test -z ${ARGS[--service_name]} && ARGS[--service_name]=${1:-${SERVICE_NAME}}
 test -z ${ARGS[--image_version]} && ARGS[--image_version]=${2:-${CIRCLE_BUILD_NUM}}
 test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${3:-${AWS_DEV_ACCOUNT_NUMBER}}
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${4:-"eu-west-1"}
-test -z ${ARGS[--ecr_endpoint]} && ARGS[--ecr_endpoint]=%{5:-${AWS_DEV_ACCOUNT_NUMBER}.ecr.eu-west-1.amazonaws.com}}
+test -z ${ARGS[--ecr_endpoint]} && ARGS[--ecr_endpoint]=${5:-${AWS_DEV_ACCOUNT_NUMBER}.ecr.eu-west-1.amazonaws.com}}
 
 install_aws_cli() {
   pip install --upgrade pip
@@ -36,7 +36,7 @@ $(aws ecr get-login --no-include-email)
 
 echo "Verify repository exists"
 aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} &>/dev/null || \
-aws ecr create-repository --repository-name ${ARGS[--image_name]}
+#aws ecr create-repository --repository-name ${ARGS[--image_name]}
 
 echo "Tag image"
 docker tag ${ARGS[--service_name]}:${IMAGE_VERSION} \
