@@ -114,4 +114,3 @@ register_task_definition() {
 make_task_definition
 volume_mount_def
 register_task_definition
-deploy
