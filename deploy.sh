@@ -45,28 +45,6 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
-			"portMappings": [
-				{
-					"containerPort": 8080,
-					"hostPort": %s
-				},
-				{
-					"containerPort": 8081,
-					"hostPort": %s
-				}
-			],
-			"mountPoints": [
-				{
-				  "sourceVolume": "ecs-logs",
-				  "containerPath": "/var/log/apps",
-				  "readOnly": false
-				},
-				{
-				  "sourceVolume": "ecs-data",
-				  "containerPath": "/usr/local/dropwizard/data",
-				  "readOnly": false
-				}
-			],
 			"volumes": [
 				{
 				    "name": "ecs-logs",
@@ -81,15 +59,50 @@ make_task_definition(){
 				    }
 				}
 			]
+			"portMappings": [
+				{
+					"containerPort": 8080,
+					"hostPort": %s
+				},
+				{
+					"containerPort": 8081,
+					"hostPort": %s
+				}
+			]
 		}
 	]'
 
 	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
+volume_mount_def(){
+    volume_mount='[
+        {
+            "name": "ecs-logs",
+            "host": {
+                "sourcePath": "/mnt/ebs/logs/hui-api"
+            }
+        },
+        {
+            "name": "ecs-data",
+            "host": {
+                "sourcePath": "/mnt/ebs/data/hui-api"
+            }
+        },
+        {
+            "name": "ecs-secrets",
+            "host": {
+                "sourcePath": "/mnt/ebs/secrets"
+            }
+        }
+    ]'
+
+    volumes=$(printf "$volume_mount")
+}
+
 register_task_definition() {
     echo "Registering task definition ${task_def}"
-    if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family "${ARGS[--ecs_service]}" --output text --query 'taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition --volumes "$volumes" --container-definitions "$task_def" --family "${ARGS[--ecs_service]}" --output text --query 'taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
@@ -99,5 +112,6 @@ register_task_definition() {
 }
 
 make_task_definition
+volume_mount_def
 register_task_definition
 deploy
