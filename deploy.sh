@@ -41,7 +41,7 @@ aws configure set default.region ${ARGS[--aws_region]}
 make_task_definition(){
 	task_template='[
 		{
-			"name": "%s-%s",
+			"name": "%s-%s-task-definition",
 			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
 			"essential": true,
 			"memory": %s,
