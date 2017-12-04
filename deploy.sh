@@ -37,14 +37,6 @@ which aws &>/dev/null || install_aws_cli
 echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
-deploy() {
-    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]} --service ${ARGS[--ecs_service]} --task-definition $revision \
-            --output text --query 'service.taskDefinition') != $revision ]]; then
-        echo "Error updating service."
-        return 1
-    fi
-}
-
 make_task_definition(){
 	task_template='[
 		{
