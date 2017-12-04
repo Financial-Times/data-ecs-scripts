@@ -30,6 +30,7 @@ test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 install_aws_cli() {
   pip install --upgrade pip
   pip install --upgrade awscli
+  sudo apt-get install jq
 }
 
 # Check whether to install aws clis
@@ -112,7 +113,7 @@ register_task_definition() {
 
 deploy_cluster() {
 
-    family="${ARGS[--ecs_service]}-task-family"
+    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-task-family"
     echo "Family name is ${family}"
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
     echo "Task role is: ${task_role_arn}"
