@@ -67,7 +67,7 @@ make_task_definition(){
 				  "readOnly": false
 				}
 			],
-			"volume_mount": [
+			"volumes": [
 				{
 				    "name": "ecs-logs",
 				    "host": {
