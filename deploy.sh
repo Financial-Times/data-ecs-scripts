@@ -45,20 +45,18 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
-			"volumes": [
-				{
-				    "name": "ecs-logs",
-				    "host": {
-					"sourcePath": "/mnt/ebs/logs/hui-api"
-				    }
-				},
-				{
-				    "name": "ecs-data",
-				    "host": {
-					"sourcePath": "/mnt/ebs/data/hui-api"
-				    }
-				}
-			],
+			"mountPoints": [
+                {
+                  "sourceVolume": "ecs-logs",
+                  "containerPath": "/var/log/apps",
+                  "readOnly": false
+                },
+                {
+                  "sourceVolume": "ecs-data",
+                  "containerPath": "/usr/local/dropwizard/data",
+                  "readOnly": false
+                }
+            ],
 			"portMappings": [
 				{
 					"containerPort": 8080,
