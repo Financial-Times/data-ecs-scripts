@@ -68,18 +68,18 @@ make_task_definition(){
 				}
 			],
 			"volume_mount": [
-                {
-                    "name": "ecs-logs",
-                    "host": {
-                        "sourcePath": "/mnt/ebs/logs/hui-api"
-                    }
-                },
-                {
-                    "name": "ecs-data",
-                    "host": {
-                        "sourcePath": "/mnt/ebs/data/hui-api"
-                    }
-                }
+				{
+				    "name": "ecs-logs",
+				    "host": {
+					"sourcePath": "/mnt/ebs/logs/hui-api"
+				    }
+				},
+				{
+				    "name": "ecs-data",
+				    "host": {
+					"sourcePath": "/mnt/ebs/data/hui-api"
+				    }
+				}
 
 		}
 	]'
