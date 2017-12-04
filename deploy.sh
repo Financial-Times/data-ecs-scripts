@@ -41,7 +41,7 @@ aws configure set default.region ${ARGS[--aws_region]}
 make_task_definition(){
 	task_template='[
 		{
-			"name": "%s-%s-task-definition",
+			"name": "%s-%s",
 			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
 			"essential": true,
 			"memory": %s,
@@ -108,6 +108,24 @@ register_task_definition() {
         return 1
     fi
 
+}
+
+deploy_cluster() {
+
+    family="${ARGS[--ecs_service]}-task-family"
+    task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
+
+    make_task_def
+    volume_mount_def
+    #placement_constraint_def
+
+    register_task_definition
+
+    if [[ $(aws ecs update-service --cluster data-platform-ecs-cluster --service ${ARGS[--ecs_service]}-${ARGS[--suffix]} --task-definition $revision | \
+                   $JQ '.service.taskDefinition') != $revision ]]; then
+        echo "Error updating service."
+        return 1
+    fi
 }
 
 make_task_definition
