@@ -58,7 +58,7 @@ make_task_definition(){
 					"sourcePath": "/mnt/ebs/data/hui-api"
 				    }
 				}
-			]
+			],
 			"portMappings": [
 				{
 					"containerPort": 8080,
