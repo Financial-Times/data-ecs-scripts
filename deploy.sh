@@ -115,7 +115,7 @@ deploy_cluster() {
     family="${ARGS[--ecs_service]}-task-family"
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
 
-    make_task_def
+    make_task_definition
     volume_mount_def
     register_task_definition
     #placement_constraint_def
