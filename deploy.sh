@@ -17,14 +17,15 @@ processCliArgs $@
 
 test -z ${ARGS[--cluster_name]} && ARGS[--cluster_name]=$1
 test -z ${ARGS[--ecs_service]} && ARGS[--ecs_service]=$2
-test -z ${ARGS[--image_name]} && ARGS[--image_name]=${3:-${SERVICE_NAME}}
-test -z ${ARGS[--image_version]} && ARGS[--image_version]=${4:-1.0.${CIRCLE_BUILD_NUM}}
-test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${5:-${AWS_ACCOUNT_NUMBER}}
-test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${6:-"eu-west-1"}
-test -z ${ARGS[--memory]} && ARGS[--memory]=${7:-"256"}
-test -z ${ARGS[--cpu]} && ARGS[--cpu]=${8:-"10"}
-test -z ${ARGS[--port1]} && ARGS[--port1]=${9:-"1000"}
-test -z ${ARGS[--port2]} && ARGS[--port2]=${10:-"1001"}
+test -z ${ARGS[--suffix]} && ARGS[--suffix]=$3
+test -z ${ARGS[--image_name]} && ARGS[--image_name]=${4:-${SERVICE_NAME}}
+test -z ${ARGS[--image_version]} && ARGS[--image_version]=${5:-1.0.${CIRCLE_BUILD_NUM}}
+test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${6:-${AWS_ACCOUNT_NUMBER}}
+test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${7:-"eu-west-1"}
+test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
+test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
+test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
+test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 
 install_aws_cli() {
   pip install --upgrade pip
@@ -40,7 +41,7 @@ aws configure set default.region ${ARGS[--aws_region]}
 make_task_definition(){
 	task_template='[
 		{
-			"name": "%s",
+			"name": "%s-%s",
 			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
 			"essential": true,
 			"memory": %s,
@@ -70,7 +71,7 @@ make_task_definition(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
@@ -78,13 +79,13 @@ volume_mount_def(){
         {
             "name": "ecs-logs",
             "host": {
-                "sourcePath": "/mnt/ebs/logs/hui-api"
+                "sourcePath": "/mnt/ebs/logs/%s"
             }
         },
         {
             "name": "ecs-data",
             "host": {
-                "sourcePath": "/mnt/ebs/data/hui-api"
+                "sourcePath": "/mnt/ebs/data/%s"
             }
         },
         {
@@ -95,7 +96,7 @@ volume_mount_def(){
         }
     ]'
 
-    volumes=$(printf "$volume_mount")
+    volumes=$(printf "$volume_mount" ${ARGS[--ecs_service]} )
 }
 
 register_task_definition() {
