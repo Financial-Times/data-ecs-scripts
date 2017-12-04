@@ -26,6 +26,17 @@ test -z ${ARGS[--cpu]} && ARGS[--cpu]=${8:-"10"}
 test -z ${ARGS[--port1]} && ARGS[--port1]=${9:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${10:-"1001"}
 
+install_aws_cli() {
+  pip install --upgrade pip
+  pip install --upgrade awscli
+}
+
+# Check whether to install aws clis
+which aws &>/dev/null || install_aws_cli
+
+echo "Set AWS region"
+aws configure set default.region ${ARGS[--aws_region]}
+
 deploy() {
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]} --service ${ARGS[--ecs_service]} --task-definition $revision \
             --output text --query 'service.taskDefinition') != $revision ]]; then
