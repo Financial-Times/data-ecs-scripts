@@ -66,7 +66,21 @@ make_task_definition(){
 				  "containerPath": "/usr/local/dropwizard/data",
 				  "readOnly": false
 				}
-			]
+			],
+			"volume_mount": [
+                {
+                    "name": "ecs-logs",
+                    "host": {
+                        "sourcePath": "/mnt/ebs/logs/hui-api"
+                    }
+                },
+                {
+                    "name": "ecs-data",
+                    "host": {
+                        "sourcePath": "/mnt/ebs/data/hui-api"
+                    }
+                }
+
 		}
 	]'
 
