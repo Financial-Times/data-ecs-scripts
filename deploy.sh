@@ -26,6 +26,7 @@ test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
 test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
 test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
+test -z ${ARGS[--zone_contraint]} && ARGS[--zone_contraint]=${12:-"a"}
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -112,6 +113,18 @@ register_task_definition() {
         return 1
     fi
 
+}
+
+# make sure you start this containter on Cluster 01 only (required by apps that need access to persistend data)
+placement_constraint_def(){
+    placement_constraint_template='[
+        {
+            "expression": "attribute:ecs.availability-zone =~ eu-west-1%s",
+            "type": "memberOf"
+        }
+    ]'
+
+    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_contraint]})
 }
 
 deploy_cluster() {
