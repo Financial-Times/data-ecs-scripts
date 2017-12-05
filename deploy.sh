@@ -105,7 +105,7 @@ volume_mount_def(){
 
 register_task_definition() {
     echo "Registering task definition ${task_def}"
-    if revision=$(aws ecs register-task-definition --volumes "$volumes" --container-definitions "$task_def" --family $family --output text --query 'taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition --volumes "$volumes" --task-role-arn $task_role_arn --container-definitions "$task_def" --family $family --output text --query 'taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
