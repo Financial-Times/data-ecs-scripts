@@ -106,7 +106,7 @@ volume_mount_def(){
 
 register_task_definition() {
     echo "Registering task definition ${task_def}"
-    if revision=$(aws ecs register-task-definition --volumes "$volumes" --task-role-arn $task_role_arn --container-definitions "$task_def" --family $family --output text --query 'taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition --volumes "$volumes" --placement-constraints "$placement_constraint" --task-role-arn $task_role_arn --container-definitions "$task_def" --family $family --output text --query 'taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
@@ -124,7 +124,7 @@ placement_constraint_def(){
         }
     ]'
 
-    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_contraint]})
+    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_constraint]})
 }
 
 deploy_cluster() {
@@ -136,8 +136,8 @@ deploy_cluster() {
 
     make_task_definition
     volume_mount_def
+    placement_constraint_def
     register_task_definition
-    #placement_constraint_def
 
     register_task_definition
 
