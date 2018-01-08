@@ -52,6 +52,12 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
+			"environment": [
+			    {
+			        "name": "environment",
+			        "value": "%s"
+			    }
+			],
 			"mountPoints": [
                 {
                   "sourceVolume": "ecs-logs",
@@ -73,17 +79,11 @@ make_task_definition(){
 					"containerPort": 8081,
 					"hostPort": %s
 				}
-			],
-			"environment": [
-                {
-                  "name" : environment,
-                  "value" : %s
-                }
-            ]
+			]
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} ${ARGS[--environment]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--environment]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
