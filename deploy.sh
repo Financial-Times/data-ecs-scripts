@@ -27,6 +27,7 @@ test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
 test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
+test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"d"}
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -72,11 +73,17 @@ make_task_definition(){
 					"containerPort": 8081,
 					"hostPort": %s
 				}
-			]
+			],
+			"environment": [
+                {
+                  "Name" : environment,
+                  "Value" : %s
+                }
+            ]
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--port1]} ${ARGS[--port2]} ${ARGS[--environment]} )
 }
 
 volume_mount_def(){
