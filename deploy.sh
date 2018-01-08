@@ -26,7 +26,7 @@ test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
 test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
 test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
-test -z ${ARGS[--zone_contraint]} && ARGS[--zone_contraint]=${12:-"a"}
+test -z ${ARGS[--zone_contraint]} && ARGS[--zone_constraint]=${12:-"a"}
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
