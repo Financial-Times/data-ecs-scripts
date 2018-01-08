@@ -76,8 +76,8 @@ make_task_definition(){
 			],
 			"environment": [
                 {
-                  "Name" : environment,
-                  "Value" : %s
+                  "name" : environment,
+                  "value" : %s
                 }
             ]
 		}
