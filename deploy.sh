@@ -53,13 +53,13 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
-			"logConfiguration": {
+            "logConfiguration": {
                 "logDriver": "splunk",
                     "options": {
                       "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
                       "splunk-token": "%s",
                       "splunk-index": "data_%s",
-                      "splunk-source": "REST_API",
+                      "splunk-source": "data_platform",
                       "splunk-insecureskipverify": "true",
                       "splunk-format": "json"
                     }
