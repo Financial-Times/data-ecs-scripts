@@ -28,6 +28,7 @@ test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
+test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -52,6 +53,17 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
+			"logConfiguration": {
+                "logDriver": "splunk",
+                    "options": {
+                      "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
+                      "splunk-token": "%s",
+                      "splunk-index": "data_%s",
+                      "splunk-source": "REST_API",
+                      "splunk-insecureskipverify": "true",
+                      "splunk-format": "json"
+                    }
+            },
 			"environment": [
 			    {
 			        "name": "environment",
@@ -83,7 +95,7 @@ make_task_definition(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--environment]} ${ARGS[--port1]} ${ARGS[--port2]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--environment]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
