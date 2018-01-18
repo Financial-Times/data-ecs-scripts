@@ -60,7 +60,7 @@ make_task_definition(){
                       "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
                       "splunk-token": "%s",
                       "splunk-index": "data_%s",
-                      "splunk-source": "data_platform",
+                      "splunk-source": "%s",
                       "splunk-insecureskipverify": "true",
                       "splunk-format": "json"
                     }
@@ -100,7 +100,7 @@ make_task_definition(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
