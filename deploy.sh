@@ -51,7 +51,7 @@ aws configure set default.region ${ARGS[--aws_region]}
 make_task_definition(){
 	task_template='[
 		{
-			"name": "%s-%s",
+			"name": "%s-%s-%s",
 			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
 			"essential": true,
 			"memory": %s,
@@ -102,7 +102,7 @@ make_task_definition(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]}  ${ARGS[--colour]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
