@@ -29,7 +29,9 @@ test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
 test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
-test -z ${ARGS[--instancenumber]} && ARGS[--instancenumber]=${15:-"01"}
+#test -z ${ARGS[--instancenumber]} && ARGS[--instancenumber]=${15:-"01"}
+test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
+
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -153,7 +155,7 @@ placement_constraint_def(){
 
 deploy_cluster() {
 
-    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-task-family"
+    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
     echo "Family name is ${family}"
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
     echo "Task role is: ${task_role_arn}"
