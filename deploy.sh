@@ -160,6 +160,11 @@ deploy_cluster() {
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
     echo "Task role is: ${task_role_arn}"
 
+    cluster_x_name="${ARGS[--cluster_name]}-${ARGS[--colour]}"
+    service_x_name="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}"
+    echo "Cluster name is ${cluster_x_name}"
+    echo "Service name is ${service_x_name}"
+
     make_task_definition
     volume_mount_def
     placement_constraint_def
@@ -171,8 +176,6 @@ deploy_cluster() {
         return 1
     fi
 
-    echo "--cluster ${ARGS[--cluster_name]}-${ARGS[--colour]}"
-    echo "--service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}"
 }
 
 deploy_cluster
