@@ -170,6 +170,9 @@ deploy_cluster() {
         echo "Error updating service."
         return 1
     fi
+
+    echo "--cluster ${ARGS[--cluster_name]}-${ARGS[--colour]}"
+    echo "--service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}"
 }
 
 deploy_cluster
