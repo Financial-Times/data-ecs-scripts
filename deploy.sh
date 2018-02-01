@@ -176,7 +176,7 @@ deploy_cluster() {
 #        echo "Error updating service."
 #        return 1
 #    fi
-    if [[ $(aws ecs update-service --cluster data-platform-ecs-cluster-green --service http-request-ingester-dev1-green --task-definition $revision | \
+    if [[ $(aws ecs update-service --region eu-west-1 --cluster data-platform-ecs-cluster-green --service http-request-ingester-dev1-green --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
