@@ -165,7 +165,7 @@ deploy_cluster() {
     placement_constraint_def
     register_task_definition
 
-    if [[ $(aws ecs update-service --cluster data-platform-ecs-cluster --service ${ARGS[--ecs_service]}-${ARGS[--suffix]} --task-definition $revision | \
+    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
