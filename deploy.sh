@@ -54,9 +54,24 @@ make_task_definition(){
 			"essential": true,
 			"memory": %s,
 			"cpu": %s,
+			"logConfiguration": {
+			    "logDriver": "splunk",
+			        "options": {
+			           "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
+			           "splunk-token": "%s",
+			           "splunk-index": "data_%s",
+			           "splunk-source": "%s",
+			           "splunk-insecureskipverify": "true",
+			           "splunk-format": "json"
+			        }
+            }
 			"environment": [
 			    {
 			        "name": "environment",
+			        "value": "%s"
+			    },
+			    {
+			        "name": "suffix",
 			        "value": "%s"
 			    }
 			],
@@ -85,7 +100,21 @@ make_task_definition(){
 		}
 	]'
 
-    task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]}  ${ARGS[--colour]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
+    task_def=$(printf "$task_template" ${ARGS[--ecs_service]} \
+                                       ${ARGS[--suffix]}  \
+                                       ${ARGS[--colour]} \
+                                       ${ARGS[--aws_account_id]} \
+                                       ${ARGS[--image_name]} \
+                                       ${ARGS[--image_version]} \
+                                       ${ARGS[--memory]} \
+                                       ${ARGS[--cpu]} \
+                                       ${ARGS[--splunk]} \
+                                       ${ARGS[--environment]} \
+                                       ${ARGS[--ecs_service]} \
+                                       ${ARGS[--environment]} \
+                                       ${ARGS[--suffix]} \
+                                       ${ARGS[--port1]} \
+                                       ${ARGS[--port2]} )
 }
 
 volume_mount_def(){
@@ -109,7 +138,14 @@ volume_mount_def(){
 
 register_task_definition() {
     echo "Registering task definition ${task_def}"
-    if revision=$(aws ecs register-task-definition --volumes "$volumes" --placement-constraints "$placement_constraint" --task-role-arn $task_role_arn --container-definitions "$task_def" --family $family --output text --query 'taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition \
+            --volumes "$volumes" \
+            --placement-constraints "$placement_constraint"
+            --task-role-arn $task_role_arn \
+            --container-definitions "$task_def" \
+            --family $family \
+            --output text \
+            --query 'taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
@@ -144,7 +180,9 @@ deploy_cluster() {
 
     register_task_definition
 
-    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | \
+    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
+                --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} \
+                --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
