@@ -98,18 +98,18 @@ volume_mount_def(){
         {
             "name": "ecs-logs",
             "host": {
-                "sourcePath": "/mnt/ebs/logs/%s"
+                "sourcePath": "/mnt/ebs/logs"
             }
         },
         {
             "name": "ecs-data",
             "host": {
-                "sourcePath": "/mnt/ebs/data/%s"
+                "sourcePath": "/mnt/ebs/data"
             }
         }
     ]'
 
-    volumes=$(printf "$volume_mount" ${ARGS[--ecs_service]} )
+    volumes=$(printf "$volume_mount")
 }
 
 register_task_definition() {
