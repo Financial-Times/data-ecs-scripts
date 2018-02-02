@@ -29,9 +29,7 @@ test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
 test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
 test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
-#test -z ${ARGS[--instancenumber]} && ARGS[--instancenumber]=${15:-"01"}
 test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
-
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -50,73 +48,57 @@ aws configure set default.region ${ARGS[--aws_region]}
 
 make_task_definition(){
 	task_template='[
-        {
-           "name":"%s-%s-%s",
-           "image":"%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
-           "essential":true,
-           "memory":%s,
-           "cpu":%s,
-           "logConfiguration":{
-              "logDriver":"splunk",
-              "options":{
-                 "splunk-url":"https://http-inputs-financialtimes.splunkcloud.com",
-                 "splunk-token":"%s",
-                 "splunk-index":"data_%s",
-                 "splunk-source":"%s",
-                 "splunk-insecureskipverify":"true",
-                 "splunk-format":"json"
-              }
-           },
-           "environment":[
-              {
-                 "name":"environment",
-                 "value":"%s"
-              },
-              {
-                 "name":"suffix",
-                 "value":"%s"
-              }
-           ],
-           "mountPoints":[
-                     {
-                 "sourceVolume":"ecs-logs",
-                 "containerPath":"/var/log/apps",
-                 "readOnly":false          
-              },
-              {
-                 "sourceVolume":"ecs-data",
-                 "containerPath":"/usr/local/dropwizard/data",
-                 "readOnly":false          
-              }       
-           ],
-           "portMappings":[
-              {
-                 "containerPort":8080,
-                 "hostPort":%s
-              },
-              {
-                 "containerPort":8081,
-                 "hostPort":%s
-              }
-           ]
-        }
+		{
+			"name": "%s-%s-%s",
+			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
+			"essential": true,
+			"memory": %s,
+			"cpu": %s,
+			"environment": [
+			    {
+			        "name": "environment",
+			        "value": "%s"
+			    }
+			],
+			"mountPoints": [
+                {
+                  "sourceVolume": "ecs-logs",
+                  "containerPath": "/var/log/apps",
+                  "readOnly": false
+                },
+                {
+                  "sourceVolume": "ecs-data",
+                  "containerPath": "/usr/local/dropwizard/data",
+                  "readOnly": false
+                }
+            ],
+			"portMappings": [
+				{
+					"containerPort": 8080,
+					"hostPort": %s
+				},
+				{
+					"containerPort": 8081,
+					"hostPort": %s
+				}
+			]
+		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]}  ${ARGS[--colour]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
-}
+    task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]}  ${ARGS[--colour]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
 
 volume_mount_def(){
     volume_mount='[
         {
             "name": "ecs-logs",
             "host": {
-                "sourcePath": "/mnt/ebs/logs"
+                "sourcePath": "/mnt/ebs/logs/"
             }
         },
         {
             "name": "ecs-data",
             "host": {
-                "sourcePath": "/mnt/ebs/data"
+                "sourcePath": "/mnt/ebs/data/"
             }
         }
     ]'
@@ -149,26 +131,23 @@ placement_constraint_def(){
 
 deploy_cluster() {
 
-    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
+    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-task-family"
     echo "Family name is ${family}"
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
     echo "Task role is: ${task_role_arn}"
-
-    cluster_x_name="${ARGS[--cluster_name]}-${ARGS[--colour]}"
-    service_x_name="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}"
-    echo "Cluster name is ${cluster_x_name}"
-    echo "Service name is ${service_x_name}"
 
     make_task_definition
     volume_mount_def
     placement_constraint_def
     register_task_definition
 
-    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | $JQ '.service.taskDefinition') != $revision ]]; then
+    register_task_definition
+
+    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | \
+                   $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
     fi
-
 }
 
 deploy_cluster
