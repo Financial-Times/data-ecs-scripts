@@ -64,7 +64,7 @@ make_task_definition(){
 			           "splunk-insecureskipverify": "true",
 			           "splunk-format": "json"
 			        }
-            }
+            },
 			"environment": [
 			    {
 			        "name": "environment",
