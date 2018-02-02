@@ -106,12 +106,6 @@ volume_mount_def(){
             "host": {
                 "sourcePath": "/mnt/ebs/data/%s"
             }
-        },
-        {
-            "name": "ecs-secrets",
-            "host": {
-                "sourcePath": "/mnt/ebs/secrets"
-            }
         }
     ]'
 
@@ -154,7 +148,7 @@ deploy_cluster() {
     echo "Service name is ${service_x_name}"
 
     make_task_definition
-    #volume_mount_def
+    volume_mount_def
     placement_constraint_def
     register_task_definition
 
