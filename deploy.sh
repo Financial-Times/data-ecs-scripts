@@ -77,18 +77,6 @@ make_task_definition(){
 			        "value": "%s"
 			    }
 			],
-			"mountPoints": [
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/var/log/apps",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/usr/local/dropwizard/data",
-                  "readOnly": false
-                }
-            ],
 			"portMappings": [
 				{
 					"containerPort": 8080,
@@ -166,21 +154,21 @@ deploy_cluster() {
     echo "Service name is ${service_x_name}"
 
     make_task_definition
-    volume_mount_def
+    #volume_mount_def
     placement_constraint_def
     register_task_definition
 
 
-#    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | \
-#                   $JQ '.service.taskDefinition') != $revision ]]; then
-#        echo "Error updating service."
-#        return 1
-#    fi
-    if [[ $(aws ecs update-service --region eu-west-1 --cluster data-platform-ecs-cluster-green --service http-request-ingester-dev1-green --task-definition $revision | \
+    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
     fi
+#    if [[ $(aws ecs update-service --region eu-west-1 --cluster data-platform-ecs-cluster-green --service http-request-ingester-dev1-green --task-definition $revision | \
+#                   $JQ '.service.taskDefinition') != $revision ]]; then
+#        echo "Error updating service."
+#        return 1
+#    fi
 
 }
 
