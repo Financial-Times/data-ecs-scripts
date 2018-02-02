@@ -50,56 +50,56 @@ aws configure set default.region ${ARGS[--aws_region]}
 
 make_task_definition(){
 	task_template='[
-		{
-			"name": "%s-%s-%s",
-			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
-			"essential": true,
-			"memory": %s,
-			"cpu": %s,
-            "logConfiguration": {
-                "logDriver": "splunk",
-                    "options": {
-                      "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-                      "splunk-token": "%s",
-                      "splunk-index": "data_%s",
-                      "splunk-source": "%s",
-                      "splunk-insecureskipverify": "true",
-                      "splunk-format": "json"
-                    }
-            },
-			"environment": [
-			    {
-			        "name": "environment",
-			        "value": "%s"
-			    },
-			    {
-			        "name": "suffix",
-			        "value": "%s"
-			    }
-			],
-			"mountPoints":[
-                 {
-                    "sourceVolume":"ecs-logs",
-                    "containerPath":"/var/log/apps",
-                    "readOnly":false       
-                },
-                {
-                    "sourceVolume":"ecs-data",
-                    "containerPath":"/usr/local/dropwizard/data",
-                    "readOnly":false       
-                }    
-            ],
-			"portMappings": [
-				{
-					"containerPort": 8080,
-					"hostPort": %s
-				},
-				{
-					"containerPort": 8081,
-					"hostPort": %s
-				}
-			]
-		}
+        {
+           "name":"%s-%s-%s",
+           "image":"%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
+           "essential":true,
+           "memory":%s,
+           "cpu":%s,
+           "logConfiguration":{
+              "logDriver":"splunk",
+              "options":{
+                 "splunk-url":"https://http-inputs-financialtimes.splunkcloud.com",
+                 "splunk-token":"%s",
+                 "splunk-index":"data_%s",
+                 "splunk-source":"%s",
+                 "splunk-insecureskipverify":"true",
+                 "splunk-format":"json"
+              }
+           },
+           "environment":[
+              {
+                 "name":"environment",
+                 "value":"%s"
+              },
+              {
+                 "name":"suffix",
+                 "value":"%s"
+              }
+           ],
+           "mountPoints":[
+                     {
+                 "sourceVolume":"ecs-logs",
+                 "containerPath":"/var/log/apps",
+                 "readOnly":false          
+              },
+              {
+                 "sourceVolume":"ecs-data",
+                 "containerPath":"/usr/local/dropwizard/data",
+                 "readOnly":false          
+              }       
+           ],
+           "portMappings":[
+              {
+                 "containerPort":8080,
+                 "hostPort":%s
+              },
+              {
+                 "containerPort":8081,
+                 "hostPort":%s
+              }
+           ]
+        }
 	]'
 
 	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--suffix]}  ${ARGS[--colour]} ${ARGS[--aws_account_id]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--memory]} ${ARGS[--cpu]} ${ARGS[--splunk]} ${ARGS[--environment]} ${ARGS[--ecs_service]} ${ARGS[--environment]} ${ARGS[--suffix]} ${ARGS[--port1]} ${ARGS[--port2]} )
