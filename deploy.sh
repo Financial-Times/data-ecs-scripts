@@ -168,7 +168,7 @@ placement_constraint_def(){
 
 deploy_cluster() {
 
-    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-task-family"
+    family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
     echo "Family name is ${family}"
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
     echo "Task role is: ${task_role_arn}"
