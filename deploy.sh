@@ -30,6 +30,8 @@ test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
 test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
 test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
+test -z ${ARGS[--aws_role]} && ARGS[--aws_role]=${15:-"FTApplicationRoleFor_ingesters"}
+
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -170,7 +172,7 @@ deploy_cluster() {
 
     family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
     echo "Family name is ${family}"
-    task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/FTApplicationRoleFor_ingesters"
+    task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/${ARGS[--aws_role]}"
     echo "Task role is: ${task_role_arn}"
 
     make_task_definition
