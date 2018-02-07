@@ -30,7 +30,7 @@ test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
 test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
 test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
-test -z ${ARGS[--aws_role]} && ARGS[--aws_role]=${15:-"FTApplicationRoleFor_ingesters"}
+test -z ${ARGS[--aws_role]} && ARGS[--aws_role]=${16:-"FTApplicationRoleFor_ingesters"}
 
 
 # more bash-friendly output for jq
