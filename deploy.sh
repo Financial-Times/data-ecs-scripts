@@ -87,6 +87,16 @@ make_task_definition(){
                   "sourceVolume": "ecs-data",
                   "containerPath": "/usr/local/dropwizard/data",
                   "readOnly": false
+                },
+                {
+                  "sourceVolume": "ecs-data",
+                  "containerPath": "/tmp/data",
+                  "readOnly": false
+                },
+                {
+                  "sourceVolume": "ecs-logs",
+                  "containerPath": "/tmp/logs",
+                  "readOnly": false
                 }
             ],
 			"portMappings": [
