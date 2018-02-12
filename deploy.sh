@@ -26,7 +26,7 @@ test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
 test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
 test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
 test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
-test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
+#test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
 test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
 test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
 test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
@@ -152,7 +152,6 @@ register_task_definition() {
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
             --volumes "$volumes" \
-            --placement-constraints "$placement_constraint" \
             --task-role-arn $task_role_arn \
             --container-definitions "$task_def" \
             --family $family \
@@ -167,16 +166,16 @@ register_task_definition() {
 }
 
 # make sure you start this containter on Cluster 01 only (required by apps that need access to persistend data)
-placement_constraint_def(){
-    placement_constraint_template='[
-        {
-            "expression": "attribute:ecs.availability-zone =~ eu-west-1%s",
-            "type": "memberOf"
-        }
-    ]'
-
-    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_constraint]})
-}
+#placement_constraint_def(){
+#    placement_constraint_template='[
+#        {
+#            "expression": "attribute:ecs.availability-zone =~ eu-west-1%s",
+#            "type": "memberOf"
+#        }
+#    ]'
+#
+#    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_constraint]})
+#}
 
 deploy_cluster() {
 
@@ -187,7 +186,7 @@ deploy_cluster() {
 
     make_task_definition
     volume_mount_def
-    placement_constraint_def
+    #placement_constraint_def
     register_task_definition
 
     register_task_definition
