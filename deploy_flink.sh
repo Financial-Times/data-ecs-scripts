@@ -31,14 +31,14 @@ make_task_def() {
         \"hostname\": \"job\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
         \"logConfiguration\": {
-  	       \"logDriver\": \"splunk\",
+  	        \"logDriver\": \"splunk\",
   	        \"options\": {
-  	           \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
-  	           \"splunk-token\": \"${ARGS[--splunk]}\",
-  	           \"splunk-index\": \"data_${ARGS[--environment]}\",
-  	           \"splunk-source\": \"${ARGS[--ecs_service]}\",
-  	           \"splunk-insecureskipverify\": \"true\",
-  	           \"splunk-format\": \"json\"
+                \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+                \"splunk-token\": \"${ARGS[--splunk]}\",
+                \"splunk-index\": \"data_${ARGS[--environment]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-insecureskipverify\": \"true\",
+                \"splunk-format\": \"json\"
   	        }
         },
   			\"environment\": [
@@ -55,23 +55,22 @@ make_task_def() {
   			        \"value\": \"${ARGS[--context]}\"
   			    },
             {
-              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
-              \"value\": \"jobmanager\"
+                \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+                \"value\": \"jobmanager\"
             }
-
   			],
   			\"mountPoints\": [
             {
-              \"sourceVolume\": \"ecs-data\",
-              \"containerPath\": \"/tmp/data\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp/data\",
+                \"readOnly\": false
             },
             {
-              \"sourceVolume\": \"ecs-logs\",
-              \"containerPath\": \"/tmp/logs\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-logs\",
+                \"containerPath\": \"/tmp/logs\",
+                \"readOnly\": false
             }
-        ],
+        ]
   		},
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
@@ -81,14 +80,14 @@ make_task_def() {
         \"cpu\": 512,
         \"hostname\": \"jobmanager\",
         \"logConfiguration\": {
-           \"logDriver\": \"splunk\",
+            \"logDriver\": \"splunk\",
             \"options\": {
-               \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
-               \"splunk-token\": \"${ARGS[--splunk]}\",
-               \"splunk-index\": \"data_${ARGS[--environment]}\",
-               \"splunk-source\": \"${ARGS[--ecs_service]}\",
-               \"splunk-insecureskipverify\": \"true\",
-               \"splunk-format\": \"json\"
+                \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+                \"splunk-token\": \"${ARGS[--splunk]}\",
+                \"splunk-index\": \"data_${ARGS[--environment]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-insecureskipverify\": \"true\",
+                \"splunk-format\": \"json\"
             }
         },
         \"environment\": [
@@ -105,23 +104,22 @@ make_task_def() {
                 \"value\": \"${ARGS[--context]}\"
             },
             {
-              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
-              \"value\": \"jobmanager\"
+                \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+                \"value\": \"jobmanager\"
             }
-
         ],
         \"mountPoints\": [
             {
-              \"sourceVolume\": \"ecs-data\",
-              \"containerPath\": \"/tmp/data\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp/data\",
+                \"readOnly\": false
             },
             {
-              \"sourceVolume\": \"ecs-logs\",
-              \"containerPath\": \"/tmp/logs\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-logs\",
+                \"containerPath\": \"/tmp/logs\",
+                \"readOnly\": false
             }
-        ],
+        ]
       },
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
@@ -132,14 +130,14 @@ make_task_def() {
         \"hostname\": \"taskmanager\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
         \"logConfiguration\": {
-           \"logDriver\": \"splunk\",
+            \"logDriver\": \"splunk\",
             \"options\": {
-               \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
-               \"splunk-token\": \"${ARGS[--splunk]}\",
-               \"splunk-index\": \"data_${ARGS[--environment]}\",
-               \"splunk-source\": \"${ARGS[--ecs_service]}\",
-               \"splunk-insecureskipverify\": \"true\",
-               \"splunk-format\": \"json\"
+                \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+                \"splunk-token\": \"${ARGS[--splunk]}\",
+                \"splunk-index\": \"data_${ARGS[--environment]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-insecureskipverify\": \"true\",
+                \"splunk-format\": \"json\"
             }
         },
         \"environment\": [
@@ -156,23 +154,22 @@ make_task_def() {
                 \"value\": \"${ARGS[--context]}\"
             },
             {
-              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
-              \"value\": \"jobmanager\"
+                \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+                \"value\": \"jobmanager\"
             }
-
         ],
         \"mountPoints\": [
             {
-              \"sourceVolume\": \"ecs-data\",
-              \"containerPath\": \"/tmp/data\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp/data\",
+                \"readOnly\": false
             },
             {
-              \"sourceVolume\": \"ecs-logs\",
-              \"containerPath\": \"/tmp/logs\",
-              \"readOnly\": false
+                \"sourceVolume\": \"ecs-logs\",
+                \"containerPath\": \"/tmp/logs\",
+                \"readOnly\": false
             }
-        ],
+        ]
       }
   	]"
 
@@ -201,9 +198,9 @@ make_volumes() {
 register_task_definition() {
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
-            --volumes "$volumes" \
+            --volumes $volumes \
             --task-role-arn $task_role_arn \
-            --container-definitions "$task_def" \
+            --container-definitions $task_def \
             --family $family \
             --output text \
             --query 'taskDefinition.taskDefinitionArn'); then
