@@ -21,7 +21,7 @@ echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
 make_task_def() {
-	task_def="[
+	task_def_json="[
   		{
   			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
   			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
@@ -175,10 +175,12 @@ make_task_def() {
         ],
       }
   	]"
+
+    task_def=$(printf "$task_def_json")
 }
 
 make_volumes() {
-    volumes="[
+    volumes_json="[
         {
             \"name\": \"ecs-logs\",
             \"host\": {
@@ -192,6 +194,8 @@ make_volumes() {
             }
         }
     ]"
+
+    volumes=$(printf "$volumes_json")
 }
 
 register_task_definition() {
@@ -234,6 +238,7 @@ deploy_service() {
     make_volumes
     #make_placement_constraint
 
+    register_task_definition
     register_task_definition
 
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
