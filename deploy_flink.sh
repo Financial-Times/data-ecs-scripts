@@ -119,7 +119,8 @@ make_task_def() {
                 \"containerPath\": \"/tmp/logs\",
                 \"readOnly\": false
             }
-        ]
+        ],
+        \"command\": [\"jobmanager\"]
       },
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
@@ -169,7 +170,8 @@ make_task_def() {
                 \"containerPath\": \"/tmp/logs\",
                 \"readOnly\": false
             }
-        ]
+        ],
+        \"command\": [\"taskmanager\"]
       }
   	]"
 
