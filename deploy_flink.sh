@@ -21,177 +21,177 @@ echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
 make_task_def() {
-	task_def='[
+	task_def="[
   		{
-  			"name": "${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}",
-  			"image": "${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}",
-  			"essential": true,
-  			"memory": 1024,
-  			"cpu": 512,
-        "hostname": "job",
-        "links": ["${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager"],
-        "logConfiguration": {
-  	       "logDriver": "splunk",
-  	        "options": {
-  	           "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-  	           "splunk-token": "${ARGS[--splunk]}",
-  	           "splunk-index": "data_${ARGS[--environment]}",
-  	           "splunk-source": "${ARGS[--ecs_service]}",
-  	           "splunk-insecureskipverify": "true",
-  	           "splunk-format": "json"
+  			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
+  			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
+  			\"essential\": true,
+  			\"memory\": 1024,
+  			\"cpu\": 512,
+        \"hostname\": \"job\",
+        \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
+        \"logConfiguration\": {
+  	       \"logDriver\": \"splunk\",
+  	        \"options\": {
+  	           \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+  	           \"splunk-token\": \"${ARGS[--splunk]}\",
+  	           \"splunk-index\": \"data_${ARGS[--environment]}\",
+  	           \"splunk-source\": \"${ARGS[--ecs_service]}\",
+  	           \"splunk-insecureskipverify\": \"true\",
+  	           \"splunk-format\": \"json\"
   	        }
         },
-  			"environment": [
+  			\"environment\": [
   			    {
-  			        "name": "environment",
-  			        "value": "${ARGS[--environment]}"
+  			        \"name\": \"environment\",
+  			        \"value\": \"${ARGS[--environment]}\"
   			    },
   			    {
-  			        "name": "suffix",
-  			        "value": "${ARGS[--suffix]}"
+  			        \"name\": \"suffix\",
+  			        \"value\": \"${ARGS[--suffix]}\"
             },
   			    {
-  			        "name": "context",
-  			        "value": "${ARGS[--context]}"
+  			        \"name\": \"context\",
+  			        \"value\": \"${ARGS[--context]}\"
   			    },
             {
-              "name": "JOB_MANAGER_RPC_ADDRESS",
-              "value": "jobmanager"
+              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+              \"value\": \"jobmanager\"
             }
 
   			],
-  			"mountPoints": [
+  			\"mountPoints\": [
             {
-              "sourceVolume": "ecs-data",
-              "containerPath": "/tmp/data",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-data\",
+              \"containerPath\": \"/tmp/data\",
+              \"readOnly\": false
             },
             {
-              "sourceVolume": "ecs-logs",
-              "containerPath": "/tmp/logs",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-logs\",
+              \"containerPath\": \"/tmp/logs\",
+              \"readOnly\": false
             }
         ],
   		},
       {
-        "name": "${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}",
-        "image": "${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37",
-        "essential": true,
-        "memory": 1024,
-        "cpu": 512,
-        "hostname": "jobmanager",
-        "logConfiguration": {
-           "logDriver": "splunk",
-            "options": {
-               "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-               "splunk-token": "${ARGS[--splunk]}",
-               "splunk-index": "data_${ARGS[--environment]}",
-               "splunk-source": "${ARGS[--ecs_service]}",
-               "splunk-insecureskipverify": "true",
-               "splunk-format": "json"
+        \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
+        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37\",
+        \"essential\": true,
+        \"memory\": 1024,
+        \"cpu\": 512,
+        \"hostname\": \"jobmanager\",
+        \"logConfiguration\": {
+           \"logDriver\": \"splunk\",
+            \"options\": {
+               \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+               \"splunk-token\": \"${ARGS[--splunk]}\",
+               \"splunk-index\": \"data_${ARGS[--environment]}\",
+               \"splunk-source\": \"${ARGS[--ecs_service]}\",
+               \"splunk-insecureskipverify\": \"true\",
+               \"splunk-format\": \"json\"
             }
         },
-        "environment": [
+        \"environment\": [
             {
-                "name": "environment",
-                "value": "${ARGS[--environment]}"
+                \"name\": \"environment\",
+                \"value\": \"${ARGS[--environment]}\"
             },
             {
-                "name": "suffix",
-                "value": "${ARGS[--suffix]}"
+                \"name\": \"suffix\",
+                \"value\": \"${ARGS[--suffix]}\"
             },
             {
-                "name": "context",
-                "value": "${ARGS[--context]}"
+                \"name\": \"context\",
+                \"value\": \"${ARGS[--context]}\"
             },
             {
-              "name": "JOB_MANAGER_RPC_ADDRESS",
-              "value": "jobmanager"
+              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+              \"value\": \"jobmanager\"
             }
 
         ],
-        "mountPoints": [
+        \"mountPoints\": [
             {
-              "sourceVolume": "ecs-data",
-              "containerPath": "/tmp/data",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-data\",
+              \"containerPath\": \"/tmp/data\",
+              \"readOnly\": false
             },
             {
-              "sourceVolume": "ecs-logs",
-              "containerPath": "/tmp/logs",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-logs\",
+              \"containerPath\": \"/tmp/logs\",
+              \"readOnly\": false
             }
         ],
       },
       {
-        "name": "${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}",
-        "image": "${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37",
-        "essential": true,
-        "memory": 2048,
-        "cpu": 512,
-        "hostname": "taskmanager",
-        "links": ["%s-%s-jobmanager-%s:jobmanager"],
-        "logConfiguration": {
-           "logDriver": "splunk",
-            "options": {
-               "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-               "splunk-token": "${ARGS[--splunk]}",
-               "splunk-index": "data_${ARGS[--environment]}",
-               "splunk-source": "${ARGS[--ecs_service]}",
-               "splunk-insecureskipverify": "true",
-               "splunk-format": "json"
+        \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
+        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37\",
+        \"essential\": true,
+        \"memory\": 2048,
+        \"cpu\": 512,
+        \"hostname\": \"taskmanager\",
+        \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
+        \"logConfiguration\": {
+           \"logDriver\": \"splunk\",
+            \"options\": {
+               \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+               \"splunk-token\": \"${ARGS[--splunk]}\",
+               \"splunk-index\": \"data_${ARGS[--environment]}\",
+               \"splunk-source\": \"${ARGS[--ecs_service]}\",
+               \"splunk-insecureskipverify\": \"true\",
+               \"splunk-format\": \"json\"
             }
         },
-        "environment": [
+        \"environment\": [
             {
-                "name": "environment",
-                "value": "${ARGS[--environment]}"
+                \"name\": \"environment\",
+                \"value\": \"${ARGS[--environment]}\"
             },
             {
-                "name": "suffix",
-                "value": "${ARGS[--suffix]}"
+                \"name\": \"suffix\",
+                \"value\": \"${ARGS[--suffix]}\"
             },
             {
-                "name": "context",
-                "value": "${ARGS[--context]}"
+                \"name\": \"context\",
+                \"value\": \"${ARGS[--context]}\"
             },
             {
-              "name": "JOB_MANAGER_RPC_ADDRESS",
-              "value": "jobmanager"
+              \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
+              \"value\": \"jobmanager\"
             }
 
         ],
-        "mountPoints": [
+        \"mountPoints\": [
             {
-              "sourceVolume": "ecs-data",
-              "containerPath": "/tmp/data",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-data\",
+              \"containerPath\": \"/tmp/data\",
+              \"readOnly\": false
             },
             {
-              "sourceVolume": "ecs-logs",
-              "containerPath": "/tmp/logs",
-              "readOnly": false
+              \"sourceVolume\": \"ecs-logs\",
+              \"containerPath\": \"/tmp/logs\",
+              \"readOnly\": false
             }
         ],
       }
-  	]'
+  	]"
 }
 
 make_volumes() {
-    volumes='[
+    volumes="[
         {
-            "name": "ecs-logs",
-            "host": {
-                "sourcePath": "/mnt/ebs/logs/"
+            \"name\": \"ecs-logs\",
+            \"host\": {
+                \"sourcePath\": \"/mnt/ebs/logs/\"
             }
         },
         {
-            "name": "ecs-data",
-            "host": {
-                "sourcePath": "/mnt/ebs/data/"
+            \"name\": \"ecs-data\",
+            \"host\": {
+                \"sourcePath\": \"/mnt/ebs/data/\"
             }
         }
-    ]'
+    ]"
 }
 
 register_task_definition() {
