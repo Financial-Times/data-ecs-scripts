@@ -230,11 +230,11 @@ deploy_service() {
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/${ARGS[--aws_role]}"
     echo "Task role is: ${task_role_arn}"
 
-    make_task_def()
-    make_volumes()
-    #make_placement_constraint()
+    make_task_def
+    make_volumes
+    #make_placement_constraint
 
-    register_task_definition()
+    register_task_definition
 
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
                 --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} \
@@ -245,4 +245,4 @@ deploy_service() {
     fi
 }
 
-deploy_service()
+deploy_service
