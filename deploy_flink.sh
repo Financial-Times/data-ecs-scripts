@@ -26,7 +26,7 @@ make_task_def() {
   			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
   			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
   			\"essential\": true,
-  			\"memory\": 1024,
+  			\"memory\": 512,
   			\"cpu\": 512,
         \"hostname\": \"job\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
@@ -76,7 +76,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37\",
         \"essential\": true,
-        \"memory\": 1024,
+        \"memory\": 512,
         \"cpu\": 512,
         \"hostname\": \"jobmanager\",
         \"logConfiguration\": {
