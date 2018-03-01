@@ -74,7 +74,7 @@ make_task_def() {
   		},
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
-        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37\",
+        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
         \"memory\": 512,
         \"cpu\": 512,
@@ -124,7 +124,7 @@ make_task_def() {
       },
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
-        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/data-flink:1.4.0-37\",
+        \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
         \"memory\": 2048,
         \"cpu\": 512,
