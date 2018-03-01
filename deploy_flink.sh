@@ -85,7 +85,7 @@ make_task_def() {
                 \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
                 \"splunk-token\": \"${ARGS[--splunk]}\",
                 \"splunk-index\": \"data_${ARGS[--environment]}\",
-                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}-jobmanager\",
                 \"splunk-insecureskipverify\": \"true\",
                 \"splunk-format\": \"json\"
             }
@@ -136,7 +136,7 @@ make_task_def() {
                 \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
                 \"splunk-token\": \"${ARGS[--splunk]}\",
                 \"splunk-index\": \"data_${ARGS[--environment]}\",
-                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}-taskmanager\",
                 \"splunk-insecureskipverify\": \"true\",
                 \"splunk-format\": \"json\"
             }
@@ -209,7 +209,7 @@ register_task_definition() {
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
-        return 1
+        exit 1
     fi
 
 }
@@ -245,7 +245,7 @@ deploy_service() {
                 --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
-        return 1
+        exit 1
     fi
 }
 
