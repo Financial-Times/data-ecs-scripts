@@ -62,12 +62,7 @@ make_task_def() {
   			\"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/tmp/data\",
-                \"readOnly\": false
-            },
-            {
-                \"sourceVolume\": \"ecs-logs\",
-                \"containerPath\": \"/tmp/logs\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ]
@@ -111,12 +106,7 @@ make_task_def() {
         \"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/tmp/data\",
-                \"readOnly\": false
-            },
-            {
-                \"sourceVolume\": \"ecs-logs\",
-                \"containerPath\": \"/tmp/logs\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
@@ -162,12 +152,7 @@ make_task_def() {
         \"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/tmp/data\",
-                \"readOnly\": false
-            },
-            {
-                \"sourceVolume\": \"ecs-logs\",
-                \"containerPath\": \"/tmp/logs\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
