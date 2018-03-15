@@ -1,156 +1,113 @@
 #!/usr/bin/env bash
-#
-# Create ECS task defintion and update service
-#
-# Script is intended to be run by CircleCI. It references variables CIRCLE_PROJECT_REPONAME and  CIRCLE_BUILD_NUM
-# unless passed in as command line parameter
-#
-# Script is based on https://github.com/circleci/go-ecs-ecr/blob/master/deploy.sh
-#
-# USAGE: deploy.sh <ecs_cluster> <ecs_service> [image_name] [image_version] [aws_account_id] [region]
-#   OR
-# USAGE: deploy.sh --ecs_cluster=cluster_name --ecs_service=service_name [--image_name=image_name] [--image_version=image_version] [--aws_account_id=aws_account_id] [--aws_region=aws_region]
-#
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
+
 processCliArgs $@
-
-test -z ${ARGS[--cluster_name]} && ARGS[--cluster_name]=$1
-test -z ${ARGS[--ecs_service]} && ARGS[--ecs_service]=$2
-test -z ${ARGS[--suffix]} && ARGS[--suffix]=$3
-test -z ${ARGS[--image_name]} && ARGS[--image_name]=${4:-${SERVICE_NAME}}
-test -z ${ARGS[--image_version]} && ARGS[--image_version]=${5:-1.1.0-${CIRCLE_BUILD_NUM}}
-test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${6:-${AWS_ACCOUNT_NUMBER}}
-test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${7:-"eu-west-1"}
-test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
-test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
-test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
-test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
-test -z ${ARGS[--environment]} && ARGS[--environment]=${12:-"dev"}
-test -z ${ARGS[--splunk]} && ARGS[--splunk]=${13:-""}
-test -z ${ARGS[--colour]} && ARGS[--colour]=${14:-"green"}
-test -z ${ARGS[--aws_role]} && ARGS[--aws_role]=${15:-"FTApplicationRoleFor_ingesters"}
-test -z ${ARGS[--context]} && ARGS[--context]=${16:-""}
-
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
 
-install_aws_cli() {
+install_tools() {
   pip install --upgrade pip
   pip install --upgrade awscli
   sudo apt-get install jq
 }
 
-# Check whether to install aws clis
-which aws &>/dev/null || install_aws_cli
+# Check whether to install aws cli or jq
+which aws &>/dev/null || install_tools
+which jq &>/dev/null || install_tools
 
 echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
-make_task_definition(){
-	task_template='[
-		{
-			"name": "%s-%s-%s",
-			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
-			"essential": true,
-			"memory": %s,
-			"cpu": %s,
-			"logConfiguration": {
-			    "logDriver": "splunk",
-			        "options": {
-			           "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-			           "splunk-token": "%s",
-			           "splunk-index": "data_%s",
-			           "splunk-source": "%s",
-			           "splunk-insecureskipverify": "true",
-			           "splunk-format": "json"
-			        }
+make_task_def() {
+	task_def_json="[
+  		{
+  			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
+  			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
+  			\"essential\": true,
+  			\"memory\": ${ARGS[--memory]},
+  			\"cpu\": ${ARGS[--cpu]},
+        \"logConfiguration\": {
+  	        \"logDriver\": \"splunk\",
+  	        \"options\": {
+                \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+                \"splunk-token\": \"${ARGS[--splunk]}\",
+                \"splunk-index\": \"data_${ARGS[--environment]}\",
+                \"splunk-source\": \"${ARGS[--ecs_service]}\",
+                \"splunk-insecureskipverify\": \"true\",
+                \"splunk-format\": \"json\"
+  	        }
+        },
+  			\"environment\": [
+  			    {
+  			        \"name\": \"environment\",
+  			        \"value\": \"${ARGS[--environment]}\"
+  			    },
+  			    {
+  			        \"name\": \"suffix\",
+  			        \"value\": \"${ARGS[--suffix]}\"
             },
-			"environment": [
-			    {
-			        "name": "environment",
-			        "value": "%s"
-			    },
-			    {
-			        "name": "suffix",
-			        "value": "%s"
-          },
-			    {
-			        "name": "context",
-			        "value": "%s"
-			    }
-			],
-			"mountPoints": [
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/var/log/apps",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/usr/local/dropwizard/data",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/tmp/data",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/tmp/logs",
-                  "readOnly": false
-                }
-            ],
-			"portMappings": [
-				{
-					"containerPort": 8080,
-					"hostPort": %s
-				},
-				{
-					"containerPort": 8081,
-					"hostPort": %s
-				}
-			]
-		}
-	]'
+  			    {
+  			        \"name\": \"context\",
+  			        \"value\": \"${ARGS[--context]}\"
+  			    }
+  			],
+  			\"mountPoints\": [
+            {
+                \"sourceVolume\": \"ecs-logs\",
+                \"containerPath\": \"/var/log/apps\",
+                \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/usr/local/dropwizard/data\",
+                \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp/data\",
+                \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-logs\",
+                \"containerPath\": \"/tmp/logs\",
+                \"readOnly\": false
+            }
+        ],
+        \"portMappings\": [
+  				{
+  					\"containerPort\": 8080,
+  					\"hostPort\": ${ARGS[--port1]}
+  				},
+  				{
+  					\"containerPort\": 8081,
+  					\"hostPort\": ${ARGS[--port2]}
+  				}
+  			]
+  		}
+  	]"
 
-    task_def=$(printf "$task_template" ${ARGS[--ecs_service]} \
-                                       ${ARGS[--suffix]}  \
-                                       ${ARGS[--colour]} \
-                                       ${ARGS[--aws_account_id]} \
-                                       ${ARGS[--image_name]} \
-                                       ${ARGS[--image_version]} \
-                                       ${ARGS[--memory]} \
-                                       ${ARGS[--cpu]} \
-                                       ${ARGS[--splunk]} \
-                                       ${ARGS[--environment]} \
-                                       ${ARGS[--ecs_service]} \
-                                       ${ARGS[--environment]} \
-                                       ${ARGS[--suffix]} \
-                                       ${ARGS[--context]} \
-                                       ${ARGS[--port1]} \
-                                       ${ARGS[--port2]} )
+    task_def=$(printf "$task_def_json")
 }
 
-volume_mount_def(){
-    volume_mount='[
+make_volumes() {
+    volumes_json="[
         {
-            "name": "ecs-logs",
-            "host": {
-                "sourcePath": "/mnt/ebs/logs/"
+            \"name\": \"ecs-logs\",
+            \"host\": {
+                \"sourcePath\": \"/mnt/ebs/logs/\"
             }
         },
         {
-            "name": "ecs-data",
-            "host": {
-                "sourcePath": "/mnt/ebs/data/"
+            \"name\": \"ecs-data\",
+            \"host\": {
+                \"sourcePath\": \"/mnt/ebs/data/\"
             }
         }
-    ]'
+    ]"
 
-    volumes=$(printf "$volume_mount")
+    volumes=$(printf "$volumes_json")
 }
 
 register_task_definition() {
@@ -165,22 +122,35 @@ register_task_definition() {
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
-        return 1
+        exit 1
     fi
 
 }
 
-deploy_cluster() {
+# make sure you start this containter on Cluster 01 only (required by apps that need access to persistend data)
+#make_placement_constraint() {
+#    placement_constraint_template='[
+#        {
+#            "expression": "attribute:ecs.availability-zone =~ eu-west-1%s",
+#            "type": "memberOf"
+#        }
+#    ]'
+#
+#    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_constraint]})
+#}
 
+deploy_service() {
     family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
     echo "Family name is ${family}"
+
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/${ARGS[--aws_role]}"
     echo "Task role is: ${task_role_arn}"
 
-    make_task_definition
-    volume_mount_def
-    register_task_definition
+    make_task_def
+    make_volumes
+    #make_placement_constraint
 
+    register_task_definition
     register_task_definition
 
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
@@ -188,8 +158,8 @@ deploy_cluster() {
                 --task-definition $revision | \
                    $JQ '.service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
-        return 1
+        exit 1
     fi
 }
 
-deploy_cluster
+deploy_service
