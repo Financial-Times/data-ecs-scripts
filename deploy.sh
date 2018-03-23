@@ -85,7 +85,7 @@ make_task_definition(){
                 },
                 {
                   "sourceVolume": "ecs-data",
-                  "containerPath": "/usr/local/dropwizard/data",
+                  "containerPath": "/usr/local/dropwizards/data",
                   "readOnly": false
                 },
                 {
