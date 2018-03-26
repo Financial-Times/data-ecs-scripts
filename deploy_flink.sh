@@ -60,11 +60,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": 1024
+                \"value\": \"1024\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": 2048
+                \"value\": \"2048\"
             }
   			],
   			\"mountPoints\": [
@@ -112,11 +112,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": 1024
+                \"value\": \"1024\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": 2048
+                \"value\": \"2048\"
             }
         ],
         \"mountPoints\": [
@@ -166,11 +166,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": 1024
+                \"value\": \"1024\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": 2048
+                \"value\": \"2048\"
             }
         ],
         \"mountPoints\": [
