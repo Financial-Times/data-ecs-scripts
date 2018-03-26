@@ -26,7 +26,7 @@ make_task_def() {
   			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
   			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
   			\"essential\": true,
-  			\"memory\": 512,
+  			\"memory\": 600,
   			\"cpu\": 512,
         \"hostname\": \"job\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
@@ -57,6 +57,14 @@ make_task_def() {
             {
                 \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
                 \"value\": \"jobmanager\"
+            },
+            {
+                \"name\": \"FLINK_JM_HEAP\",
+                \"value\": 1024
+            },
+            {
+                \"name\": \"FLINK_TM_HEAP\",
+                \"value\": 2048
             }
   			],
   			\"mountPoints\": [
@@ -71,7 +79,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
-        \"memory\": 512,
+        \"memory\": 1200,
         \"cpu\": 512,
         \"hostname\": \"jobmanager\",
         \"logConfiguration\": {
@@ -101,6 +109,14 @@ make_task_def() {
             {
                 \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
                 \"value\": \"jobmanager\"
+            },
+            {
+                \"name\": \"FLINK_JM_HEAP\",
+                \"value\": 1024
+            },
+            {
+                \"name\": \"FLINK_TM_HEAP\",
+                \"value\": 2048
             }
         ],
         \"mountPoints\": [
@@ -116,7 +132,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
-        \"memory\": 2048,
+        \"memory\": 2200,
         \"cpu\": 512,
         \"hostname\": \"taskmanager\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
@@ -147,6 +163,14 @@ make_task_def() {
             {
                 \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
                 \"value\": \"jobmanager\"
+            },
+            {
+                \"name\": \"FLINK_JM_HEAP\",
+                \"value\": 1024
+            },
+            {
+                \"name\": \"FLINK_TM_HEAP\",
+                \"value\": 2048
             }
         ],
         \"mountPoints\": [
