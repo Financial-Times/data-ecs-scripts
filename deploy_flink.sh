@@ -158,7 +158,7 @@ make_task_def() {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"2048\"
             }
-        ]
+        ],
         \"command\": [\"taskmanager\"]
       }
   	]"
