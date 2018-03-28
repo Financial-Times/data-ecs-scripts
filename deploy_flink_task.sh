@@ -227,14 +227,6 @@ deploy_service() {
 
     register_task_definition
     register_task_definition
-
-    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
-                --service ${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]} \
-                --task-definition $revision | \
-                   $JQ '.service.taskDefinition') != $revision ]]; then
-        echo "Error updating service."
-        exit 1
-    fi
 }
 
 deploy_service
