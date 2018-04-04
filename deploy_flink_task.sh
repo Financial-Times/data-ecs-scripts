@@ -64,7 +64,7 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"2048\"
+                \"value\": \"4096\"
             }
   			]
   		},
@@ -109,7 +109,7 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"2048\"
+                \"value\": \"4096\"
             }
         ],
         \"command\": [\"jobmanager\"]
@@ -118,7 +118,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
-        \"memory\": 2200,
+        \"memory\": 4400,
         \"cpu\": 512,
         \"hostname\": \"taskmanager\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
@@ -156,7 +156,7 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"2048\"
+                \"value\": \"4096\"
             }
         ],
         \"command\": [\"taskmanager\"]
