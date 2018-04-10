@@ -66,7 +66,14 @@ make_task_def() {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"4096\"
             }
-  			]
+  			],
+        \"mountPoints\": [
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/var\",
+                \"readOnly\": false
+            }
+        ]
   		},
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
@@ -110,6 +117,13 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"4096\"
+            }
+        ],
+        \"mountPoints\": [
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/var\",
+                \"readOnly\": false
             }
         ],
         \"command\": [\"jobmanager\"]
@@ -157,6 +171,13 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"4096\"
+            }
+        ],
+        \"mountPoints\": [
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/var\",
+                \"readOnly\": false
             }
         ],
         \"command\": [\"taskmanager\"]
