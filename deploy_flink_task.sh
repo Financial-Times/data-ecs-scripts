@@ -72,6 +72,11 @@ make_task_def() {
                 \"sourceVolume\": \"ecs-data\",
                 \"containerPath\": \"/var\",
                 \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp\",
+                \"readOnly\": false
             }
         ]
   		},
@@ -123,6 +128,11 @@ make_task_def() {
             {
                 \"sourceVolume\": \"ecs-data\",
                 \"containerPath\": \"/var\",
+                \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
@@ -177,6 +187,11 @@ make_task_def() {
             {
                 \"sourceVolume\": \"ecs-data\",
                 \"containerPath\": \"/var\",
+                \"readOnly\": false
+            },
+            {
+                \"sourceVolume\": \"ecs-data\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
