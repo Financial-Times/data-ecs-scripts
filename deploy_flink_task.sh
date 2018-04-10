@@ -70,7 +70,7 @@ make_task_def() {
         \"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/flink-tmp\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ]
@@ -122,7 +122,7 @@ make_task_def() {
         \"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/flink-tmp\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
@@ -176,7 +176,7 @@ make_task_def() {
         \"mountPoints\": [
             {
                 \"sourceVolume\": \"ecs-data\",
-                \"containerPath\": \"/flink-tmp\",
+                \"containerPath\": \"/tmp\",
                 \"readOnly\": false
             }
         ],
