@@ -19,11 +19,7 @@ function require {
 require aws
 require jq
 
-if [[ -z "$CLUSTER" ]]; then
-    usage
-fi
-
-if [[ -z "$TASK_DEF" ]]; then
+if [[ -z "$CLUSTER" ]] || [[ -z "$TASK_DEF" ]]; then
     usage
 fi
 
