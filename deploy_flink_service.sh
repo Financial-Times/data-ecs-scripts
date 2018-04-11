@@ -28,6 +28,7 @@ make_task_def() {
   			\"essential\": true,
   			\"memory\": 600,
   			\"cpu\": 512,
+        \"user\": \"flink\",
         \"hostname\": \"job\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
         \"logConfiguration\": {
@@ -81,6 +82,7 @@ make_task_def() {
         \"essential\": true,
         \"memory\": 1200,
         \"cpu\": 512,
+        \"user\": \"flink\",
         \"hostname\": \"jobmanager\",
         \"logConfiguration\": {
             \"logDriver\": \"splunk\",
@@ -134,6 +136,7 @@ make_task_def() {
         \"essential\": true,
         \"memory\": 4400,
         \"cpu\": 512,
+        \"user\": \"flink\",
         \"hostname\": \"taskmanager\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
         \"logConfiguration\": {
