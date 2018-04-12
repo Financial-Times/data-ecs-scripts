@@ -39,24 +39,20 @@ fi
 TASK_ARN=$(aws ecs run-task --cluster $CLUSTER --task-definition $TASK_DEF | jq -r .tasks[0].containers[0].taskArn)
 echo "TASK_ARN is $TASK_ARN"
 
-#Function which loops to wait for a result and extract the exit code
-function wait_for_result { 
-    while [[ "$TASK_STATUS" != "STOPPED" ]]; do 
-        if [[ $(date +%s) -gt $TIMEOUT_TIME ]]; then
-            timeout
-        fi
+#Wait for ecs task to finish and obtain result
+while [[ "$TASK_STATUS" != "STOPPED" ]]; do 
+    if [[ $(date +%s) -gt $TIMEOUT_TIME ]]; then
+        timeout
+    fi
 
-        sleep 3
-        TASK_JSON=$(aws ecs describe-tasks --cluster $CLUSTER --tasks $TASK_ARN)
-        TASK_STATUS=$(jq -r .tasks[0].containers[0].lastStatus <<< $TASK_JSON)
-        echo "Current task status is $TASK_STATUS"
-    done
+    sleep 3
+    TASK_JSON=$(aws ecs describe-tasks --cluster $CLUSTER --tasks $TASK_ARN)
+    TASK_STATUS=$(jq -r .tasks[0].containers[0].lastStatus <<< $TASK_JSON)
+    echo "Current task status is $TASK_STATUS"
+done
 
-    TASK_EXIT_CODE=$(jq -r .tasks[0].containers[0].exitCode <<< $TASK_JSON)
-    echo "Task status eventually reached $TASK_STATUS"
-}
-
-wait_for_result
+TASK_EXIT_CODE=$(jq -r .tasks[0].containers[0].exitCode <<< $TASK_JSON)
+echo "Task status eventually reached $TASK_STATUS"
 
 echo "Exit code for container $(jq .tasks[0].containers[0].name <<< $TASK_JSON) was $TASK_EXIT_CODE"
 echo "Exiting with code $TASK_EXIT_CODE"
