@@ -53,7 +53,7 @@ function wait_for_result {
     done
 
     TASK_EXIT_CODE=$(jq -r .tasks[0].containers[0].exitCode <<< $TASK_JSON)
-    echo "Task staus eventually reached $TASK_STATUS"
+    echo "Task status eventually reached $TASK_STATUS"
 }
 
 wait_for_result
