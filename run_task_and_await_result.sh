@@ -25,7 +25,6 @@ function timeout {
     exit 1
 }
 
-
 #Check tools are installed
 require aws
 require jq
