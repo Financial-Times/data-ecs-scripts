@@ -3,6 +3,7 @@
 START_TIME=$(date +%s)
 TIMEOUT_DURATION=1800 #30 minutes
 TIMEOUT_TIME=$(($START_TIME+$TIMEOUT_DURATION))
+POLL_INTERVAL_SECONDS=10
 
 function usage() {
     echo "CLUSTER must be set to desired ecs-cluster"
@@ -44,7 +45,7 @@ while [[ "$TASK_STATUS" != "STOPPED" ]]; do
         timeout
     fi
 
-    sleep 3
+    sleep $POLL_INTERVAL
     TASK_JSON=$(aws ecs describe-tasks --cluster $CLUSTER --tasks $TASK_ARN)
     TASK_STATUS=$(jq -r .tasks[0].containers[0].lastStatus <<< $TASK_JSON)
     echo "Current task status is $TASK_STATUS"
