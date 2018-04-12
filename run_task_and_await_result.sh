@@ -1,4 +1,9 @@
 #!/bin/bash 
+
+START_TIME=$(date +%s)
+TIMEOUT_DURATION=1800 #30 minutes
+TIMEOUT_TIME=$(($START_TIME+$TIMEOUT_DURATION))
+
 function usage() {
     echo "CLUSTER must be set to desired ecs-cluster"
     echo "TASK_DEF must be set to desired task-definition:revision number"
@@ -7,7 +12,6 @@ function usage() {
     exit 1
 }
 
-#check requirements
 function require {
     command -v $1 > /dev/null 2>&1 || {
         echo "Some of the required software is not installed:"
@@ -16,18 +20,32 @@ function require {
     }
 }
 
+function timeout {
+    echo "Timed out while waiting for $TASK_DEF to finish after $TIMEOUT_DURATION seconds"
+    exit 1
+}
+
+
+#Check tools are installed
 require aws
 require jq
 
+#Check correct variables are set
 if [[ -z "$CLUSTER" ]] || [[ -z "$TASK_DEF" ]]; then
     usage
 fi
 
+#Run the ecs-task and extract the ARN
 TASK_ARN=$(aws ecs run-task --cluster $CLUSTER --task-definition $TASK_DEF | jq -r .tasks[0].containers[0].taskArn)
 echo "TASK_ARN is $TASK_ARN"
 
+#Function which loops to wait for a result and extract the exit code
 function wait_for_result { 
     while [[ "$TASK_STATUS" != "STOPPED" ]]; do 
+        if [[ $(date +%s) -gt $TIMEOUT_TIME ]]; then
+            timeout
+        fi
+
         sleep 3
         TASK_JSON=$(aws ecs describe-tasks --cluster $CLUSTER --tasks $TASK_ARN)
         TASK_STATUS=$(jq -r .tasks[0].containers[0].lastStatus <<< $TASK_JSON)
