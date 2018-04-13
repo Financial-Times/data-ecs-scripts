@@ -45,7 +45,7 @@ while [[ "$TASK_STATUS" != "STOPPED" ]]; do
         timeout
     fi
 
-    sleep $POLL_INTERVAL
+    sleep $POLL_INTERVAL_SECONDS
     TASK_JSON=$(aws ecs describe-tasks --cluster $CLUSTER --tasks $TASK_ARN)
     TASK_STATUS=$(jq -r .tasks[0].containers[0].lastStatus <<< $TASK_JSON)
     echo "Current task status is $TASK_STATUS"
