@@ -60,11 +60,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
@@ -112,11 +112,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
@@ -166,11 +166,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
