@@ -60,11 +60,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
@@ -79,7 +79,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
-        \"memory\": 1200,
+        \"memory\": ${ARGS[--flink_jobmanager_container_memory]},
         \"cpu\": 512,
         \"hostname\": \"jobmanager\",
         \"logConfiguration\": {
@@ -112,11 +112,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
@@ -132,7 +132,7 @@ make_task_def() {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-taskmanager-${ARGS[--colour]}\",
         \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--flink_image_name]}:${ARGS[--flink_image_version]}\",
         \"essential\": true,
-        \"memory\": 4400,
+        \"memory\": ${ARGS[--flink_taskmanager_container_memory]},
         \"cpu\": 512,
         \"hostname\": \"taskmanager\",
         \"links\": [\"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}:jobmanager\"],
@@ -166,11 +166,11 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_JM_HEAP\",
-                \"value\": \"1024\"
+                \"value\": \"${ARGS[--flink_jobmanager_heap]}\"
             },
             {
                 \"name\": \"FLINK_TM_HEAP\",
-                \"value\": \"4096\"
+                \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
             }
         ],
         \"mountPoints\": [
