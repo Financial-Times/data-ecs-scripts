@@ -66,7 +66,14 @@ make_task_def() {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"2048\"
             }
-  			]
+  			],
+        \"ulimits\": [
+            {
+                \"name\": \"nofile\",
+                \"softLimit\": 10000,
+                \"hardLimit\": 10000
+            }
+        ]
   		},
       {
         \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-jobmanager-${ARGS[--colour]}\",
@@ -110,6 +117,13 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"2048\"
+            }
+        ],
+        \"ulimits\": [
+            {
+                \"name\": \"nofile\",
+                \"softLimit\": 10000,
+                \"hardLimit\": 10000
             }
         ],
         \"command\": [\"jobmanager\"]
@@ -157,6 +171,13 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"2048\"
+            }
+        ],
+        \"ulimits\": [
+            {
+                \"name\": \"nofile\",
+                \"softLimit\": 10000,
+                \"hardLimit\": 10000
             }
         ],
         \"command\": [\"taskmanager\"]
@@ -225,7 +246,6 @@ deploy_service() {
     make_volumes
     #make_placement_constraint
 
-    register_task_definition
     register_task_definition
 
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
