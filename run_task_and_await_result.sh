@@ -55,5 +55,4 @@ TASK_EXIT_CODE=$(jq -r .tasks[0].containers[0].exitCode <<< $TASK_JSON)
 echo "Task status eventually reached $TASK_STATUS"
 
 echo "Exit code for container $(jq .tasks[0].containers[0].name <<< $TASK_JSON) was $TASK_EXIT_CODE"
-echo "Exiting with code $TASK_EXIT_CODE"
 exit $TASK_EXIT_CODE
