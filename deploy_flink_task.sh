@@ -213,13 +213,13 @@ make_volumes() {
         {
             \"name\": \"ecs-logs\",
             \"host\": {
-                \"sourcePath\": \"/mnt/ebs/logs/\"
+                \"sourcePath\": \"/mnt/ebs/logs/flink\"
             }
         },
         {
             \"name\": \"ecs-data\",
             \"host\": {
-                \"sourcePath\": \"/mnt/ebs/data/\"
+                \"sourcePath\": \"/mnt/ebs/data/flink\"
             }
         }
     ]"
