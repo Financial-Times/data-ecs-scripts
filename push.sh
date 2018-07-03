@@ -43,5 +43,5 @@ docker tag ${ARGS[--service_name]}:${ARGS[--image_version]} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--service_name]}:${ARGS[--image_version]}
 
 
-echo "Pushing container to ECR"
+echo "Pushing image to ECR"
 docker push ${ARGS[--ecr_endpoint]}/${ARGS[--service_name]}:${ARGS[--image_version]}
