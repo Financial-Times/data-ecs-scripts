@@ -81,7 +81,7 @@ make_task_def() {
                 \"hardLimit\": 10000
             }
         ],
-        \"entrypoint\": [
+        \"entryPoint\": [
           \"/wait-for-it.sh\",
           \"jobmanager:8081\",
           \"--timeout=300\",
@@ -167,7 +167,7 @@ make_task_def() {
                 \"hardLimit\": 10000
             }
         ],
-        \"entrypoint\": [
+        \"entryPoint\": [
           \"bash\",
           \"/flink-entrypoint.sh\"
         ],
@@ -252,7 +252,7 @@ make_task_def() {
                 \"hardLimit\": 10000
             }
         ],
-        \"entrypoint\": [
+        \"entryPoint\": [
           \"/wait-for-it.sh\",
           \"jobmanager:8081\",
           \"--timeout=300\",
