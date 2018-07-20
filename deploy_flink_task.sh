@@ -42,6 +42,10 @@ make_task_def() {
   	        }
         },
   			\"environment\": [
+            {
+                \"name\": \"vault_context\",
+                \"value\": \"${ARGS[--ecs_service]}\"
+            },
   			    {
   			        \"name\": \"environment\",
   			        \"value\": \"${ARGS[--environment]}\"
@@ -108,6 +112,10 @@ make_task_def() {
             }
         },
         \"environment\": [
+            {
+                \"name\": \"vault_context\",
+                \"value\": \"${ARGS[--ecs_service]}\"
+            },
             {
                 \"name\": \"environment\",
                 \"value\": \"${ARGS[--environment]}\"
@@ -193,6 +201,10 @@ make_task_def() {
             }
         },
         \"environment\": [
+            {
+                \"name\": \"vault_context\",
+                \"value\": \"${ARGS[--ecs_service]}\"
+            },
             {
                 \"name\": \"environment\",
                 \"value\": \"${ARGS[--environment]}\"
