@@ -23,9 +23,9 @@ aws configure set default.region ${ARGS[--aws_region]}
 make_task_def() {
 	task_def_json="[
   		{
-  			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
+  			\"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-cli-${ARGS[--colour]}\",
   			\"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
-  			\"essential\": true,
+  			\"essential\": false,
   			\"memory\": 600,
   			\"cpu\": 512,
         \"hostname\": \"job\",
@@ -80,6 +80,13 @@ make_task_def() {
                 \"softLimit\": 10000,
                 \"hardLimit\": 10000
             }
+        ],
+        \"entrypoint\": [
+          \"/wait-for-it.sh\",
+          \"jobmanager:8081\",
+          \"--timeout=300\",
+          \"--\",
+          \"/jobs-entrypoint.sh\"
         ]
   		},
       {
@@ -159,6 +166,10 @@ make_task_def() {
                 \"softLimit\": 10000,
                 \"hardLimit\": 10000
             }
+        ],
+        \"entrypoint\": [
+          \"bash\",
+          \"/flink-entrypoint.sh\"
         ],
         \"command\": [\"jobmanager\"]
       },
@@ -240,6 +251,13 @@ make_task_def() {
                 \"softLimit\": 10000,
                 \"hardLimit\": 10000
             }
+        ],
+        \"entrypoint\": [
+          \"/wait-for-it.sh\",
+          \"jobmanager:8081\",
+          \"--timeout=300\",
+          \"--\",
+          \"/flink-entrypoint.sh\"
         ],
         \"command\": [\"taskmanager\"]
       }
