@@ -69,6 +69,10 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
+            },
+            {
+                \"name\": \"FLINK_ENVIRONMENT\",
+                \"value\": \"${ARGS[--environment]}\"
             }
   			],
         \"mountPoints\": [
@@ -142,7 +146,7 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_ENVIRONMENT\",
-                \"value\": \"${ARGS[--flink_environment]}\"
+                \"value\": \"${ARGS[--environment]}\"
             },
             {
                 \"name\": \"FLINK_GRAPHITE_HOST\",
@@ -231,7 +235,7 @@ make_task_def() {
             },
             {
                 \"name\": \"FLINK_ENVIRONMENT\",
-                \"value\": \"${ARGS[--flink_environment]}\"
+                \"value\": \"${ARGS[--environment]}\"
             },
             {
                 \"name\": \"FLINK_GRAPHITE_HOST\",
