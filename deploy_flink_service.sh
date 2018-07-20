@@ -124,6 +124,26 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
+            },
+            {
+                \"name\": \"FLINK_ENVIRONMENT\",
+                \"value\": \"${ARGS[--flink_environment]}\"
+            },
+            {
+                \"name\": \"FLINK_GRAPHITE_HOST\",
+                \"value\": \"graphite.ft.com\"
+            },
+            {
+                \"name\": \"FLINK_SAVEPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_savepoints_location]}\"
+            },
+            {
+                \"name\": \"FLINK_CHECKPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_checkpoints_location]}\"
+            },
+            {
+                \"name\": \"FLINK_FS_CHECKPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_fs_checkpoints_location]}\"
             }
         ],
         \"mountPoints\": [
@@ -185,6 +205,26 @@ make_task_def() {
             {
                 \"name\": \"FLINK_TM_HEAP\",
                 \"value\": \"${ARGS[--flink_taskmanager_heap]}\"
+            },
+            {
+                \"name\": \"FLINK_ENVIRONMENT\",
+                \"value\": \"${ARGS[--flink_environment]}\"
+            },
+            {
+                \"name\": \"FLINK_GRAPHITE_HOST\",
+                \"value\": \"graphite.ft.com\"
+            },
+            {
+                \"name\": \"FLINK_SAVEPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_savepoints_location]}\"
+            },
+            {
+                \"name\": \"FLINK_CHECKPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_checkpoints_location]}\"
+            },
+            {
+                \"name\": \"FLINK_FS_CHECKPOINTS_LOCATION\",
+                \"value\": \"${ARGS[--flink_fs_checkpoints_location]}\"
             }
         ],
         \"mountPoints\": [
