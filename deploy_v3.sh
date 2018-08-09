@@ -68,11 +68,11 @@ make_task_def() {
         \"portMappings\": [
   				{
   					\"containerPort\": 8080,
-  					\"hostPort\": ${ARGS[--port1]}
+  					\"hostPort\": ${ARGS[--httpPort]}
   				},
   				{
   					\"containerPort\": 8081,
-  					\"hostPort\": ${ARGS[--port2]}
+  					\"hostPort\": ${ARGS[--adminPort]}
   				}
   			]
   		}
