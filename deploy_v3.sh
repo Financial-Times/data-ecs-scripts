@@ -51,6 +51,10 @@ make_task_def() {
   			    {
   			        \"name\": \"CONTEXT\",
   			        \"value\": \"${ARGS[--context]}\"
+  			    },
+  			    {
+  			        \"name\": \"ENABLE_VAULT\",
+  			        \"value\": \"${ARGS[--enable_vault]}\"
   			    }
   			],
   			\"mountPoints\": [
