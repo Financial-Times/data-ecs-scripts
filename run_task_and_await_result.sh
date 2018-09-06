@@ -1,7 +1,7 @@
-#!/bin/bash 
+#!/bin/bash
 
 START_TIME=$(date +%s)
-TIMEOUT_DURATION=1800 #30 minutes
+TIMEOUT_DURATION=3600 #30 minutes
 TIMEOUT_TIME=$(($START_TIME+$TIMEOUT_DURATION))
 POLL_INTERVAL_SECONDS=30
 
@@ -40,7 +40,7 @@ TASK_ARN=$(aws ecs run-task --cluster $CLUSTER --task-definition $TASK_DEF | jq 
 echo "TASK_ARN is $TASK_ARN"
 
 #Wait for ecs task to finish and obtain result
-while [[ "$TASK_STATUS" != "STOPPED" ]]; do 
+while [[ "$TASK_STATUS" != "STOPPED" ]]; do
     if [[ $(date +%s) -gt $TIMEOUT_TIME ]]; then
         timeout
     fi
