@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# THIS SCRIPT CAN BE USED TO RUN FLINK IN ECS. PLEASE NOTE THAT WE RUN FLINK ON DOCKER SWARM NOW
+
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 
 processCliArgs $@
