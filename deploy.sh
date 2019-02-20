@@ -75,6 +75,10 @@ make_task_definition(){
 			    {
 			        "name": "suffix",
 			        "value": "%s"
+			    },
+			    {
+			        "name": "service_name",
+			        "value":"%s"
 			    }
 			],
 			"mountPoints": [
@@ -125,6 +129,7 @@ make_task_definition(){
                                        ${ARGS[--ecs_service]} \
                                        ${ARGS[--environment]} \
                                        ${ARGS[--suffix]} \
+                                       ${ARGS[--ecs_service]} \
                                        ${ARGS[--port1]} \
                                        ${ARGS[--port2]} )
 }
