@@ -7,30 +7,58 @@
 #
 # Script is based on https://github.com/circleci/go-ecs-ecr/blob/master/deploy.sh
 #
-# USAGE: deploy.sh <ecs_cluster> <ecs_service> [image_name] [image_version] [aws_account_id] [region]
-#   OR
-# USAGE: deploy.sh --ecs_cluster=cluster_name --ecs_service=service_name [--image_name=image_name] [--image_version=image_version] [--aws_account_id=aws_account_id] [--aws_region=aws_region]
+# Optional parameters
+# --skip-setting-up-port-mapping-to-host=true
 #
+# USAGE:
+#deploy.sh --cluster_name=data-platform-ecs-cluster \
+#  --ecs_service=${SERVICE_NAME} \
+#  --suffix="prod1" \
+#  --image_name=${SERVICE_NAME} \
+#  --image_version=$(cat /tmp/workspace/version) \
+#  --aws_account_id=${AWS_PROD_ACCOUNT_NUMBER} \
+#  --aws_region="eu-west-1" \
+#  --memory="512" \
+#  --cpu="128" \
+#  --port1="5040" \
+#  --port2="7040" \
+#  --environment="prod" \
+#  --splunk=${SPLUNK_TOKEN} \
+#  --colour="green" \
+#  --aws_role="FTApplicationRoleFor_passtool"
+
+set -x
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
 
-test -z ${ARGS[--cluster_name]} && ARGS[--cluster_name]=$1
-test -z ${ARGS[--ecs_service]} && ARGS[--ecs_service]=$2
-test -z ${ARGS[--suffix]} && ARGS[--suffix]=$3
-test -z ${ARGS[--image_name]} && ARGS[--image_name]=${4:-${SERVICE_NAME}}
-test -z ${ARGS[--image_version]} && ARGS[--image_version]=${5:-1.1.0-${CIRCLE_BUILD_NUM}}
-test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${6:-${AWS_ACCOUNT_NUMBER}}
-test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${7:-"eu-west-1"}
-test -z ${ARGS[--memory]} && ARGS[--memory]=${8:-"256"}
-test -z ${ARGS[--cpu]} && ARGS[--cpu]=${9:-"10"}
-test -z ${ARGS[--port1]} && ARGS[--port1]=${10:-"1000"}
-test -z ${ARGS[--port2]} && ARGS[--port2]=${11:-"1001"}
-#test -z ${ARGS[--zone_constraint]} && ARGS[--zone_constraint]=${12:-"a"}
-test -z ${ARGS[--environment]} && ARGS[--environment]=${13:-"dev"}
-test -z ${ARGS[--splunk]} && ARGS[--splunk]=${14:-""}
-test -z ${ARGS[--colour]} && ARGS[--colour]=${15:-"green"}
-test -z ${ARGS[--aws_role]} && ARGS[--aws_role]=${16:-"FTApplicationRoleFor_ingesters"}
+#Rather than using default values we should just error out if some of the required parameters have not been provided
+VARIABLES_THAT_SHOULD_NOT_BE_EMPTY=(\
+  --cluster_name\
+  --ecs_service\
+  --suffix\
+  --image_name\
+  --image_version\
+  --aws_account_id\
+  --aws_region\
+  --memory\
+  --cpu\
+  --port1\
+  --port2\
+  --environment\
+  --splunk\
+  --colour\
+  --aws_role\
+)
+
+for VARIABLE_NAME in ${VARIABLES_THAT_SHOULD_NOT_BE_EMPTY[@]}; do
+  if [ -z ${ARGS[${VARIABLE_NAME}]} ]; then
+    echo "Required parameter \"${VARIABLE_NAME}\" is not set. Exitting"
+    exit 1
+  fi
+done
+
+exit 0
 
 
 # more bash-friendly output for jq
