@@ -27,8 +27,6 @@
 #  --colour="green" \
 #  --aws_role="FTApplicationRoleFor_passtool"
 
-set -x
-
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
 
@@ -51,15 +49,13 @@ VARIABLES_THAT_SHOULD_NOT_BE_EMPTY=(\
   --aws_role\
 )
 
+#Deliberately fail if a required variable is empty
 for VARIABLE_NAME in ${VARIABLES_THAT_SHOULD_NOT_BE_EMPTY[@]}; do
   if [ -z ${ARGS[${VARIABLE_NAME}]} ]; then
     echo "Required parameter \"${VARIABLE_NAME}\" is not set. Exitting"
     exit 1
   fi
 done
-
-exit 0
-
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -76,90 +72,80 @@ which aws &>/dev/null || install_aws_cli
 echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
+#We want to be able to add or remove this section dynamically
 make_task_definition(){
-	task_template='[
-		{
-			"name": "%s-%s-%s",
-			"image": "%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s",
-			"essential": true,
-			"memory": %s,
-			"cpu": %s,
-			"logConfiguration": {
-			    "logDriver": "splunk",
-			        "options": {
-			           "splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
-			           "splunk-token": "%s",
-			           "splunk-index": "data_%s",
-			           "splunk-source": "%s",
-			           "splunk-insecureskipverify": "true",
-			           "splunk-format": "json"
-			        }
-            },
-			"environment": [
-			    {
-			        "name": "environment",
-			        "value": "%s"
-			    },
-			    {
-			        "name": "suffix",
-			        "value": "%s"
-			    },
-			    {
-			        "name": "service_name",
-			        "value":"%s"
-			    }
-			],
-			"mountPoints": [
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/var/log/apps",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/usr/local/dropwizards/data",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-data",
-                  "containerPath": "/tmp/data",
-                  "readOnly": false
-                },
-                {
-                  "sourceVolume": "ecs-logs",
-                  "containerPath": "/tmp/logs",
-                  "readOnly": false
-                }
-            ],
-			"portMappings": [
-				{
-					"containerPort": 8080,
-					"hostPort": %s
-				},
-				{
-					"containerPort": 8081,
-					"hostPort": %s
-				}
-			]
-		}
-	]'
-
-    task_def=$(printf "$task_template" ${ARGS[--ecs_service]} \
-                                       ${ARGS[--suffix]}  \
-                                       ${ARGS[--colour]} \
-                                       ${ARGS[--aws_account_id]} \
-                                       ${ARGS[--image_name]} \
-                                       ${ARGS[--image_version]} \
-                                       ${ARGS[--memory]} \
-                                       ${ARGS[--cpu]} \
-                                       ${ARGS[--splunk]} \
-                                       ${ARGS[--environment]} \
-                                       ${ARGS[--ecs_service]} \
-                                       ${ARGS[--environment]} \
-                                       ${ARGS[--suffix]} \
-                                       ${ARGS[--ecs_service]} \
-                                       ${ARGS[--port1]} \
-                                       ${ARGS[--port2]} )
+  if [[ "${ARGS[--skip-setting-up-port-mapping-to-host]}" == "true" ]]; then
+    task_ports_section=""
+  else
+    task_ports_section=",
+    \"portMappings\": [
+      {
+        \"containerPort\": 8080,
+        \"hostPort\": ${ARGS[--port1]}
+      },
+      {
+        \"containerPort\": 8081,
+        \"hostPort\": ${ARGS[--port2]}
+      }
+    ]"
+  fi
+  
+  task_def="[
+    {
+      \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
+      \"image\": \"${ARGS[--aws_account_id]}.dkr.ecr.eu-west-1.amazonaws.com/${ARGS[--image_name]}:${ARGS[--image_version]}\",
+      \"essential\": true,
+      \"memory\": ${ARGS[--memory]},
+      \"cpu\": ${ARGS[--cpu]},
+      \"logConfiguration\": {
+        \"logDriver\": \"splunk\",
+        \"options\": {
+          \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
+          \"splunk-token\": \"${ARGS[--splunk]}\",
+          \"splunk-index\": \"data_${ARGS[--environment]}\",
+          \"splunk-source\": \"${ARGS[--ecs_service]}\",
+          \"splunk-insecureskipverify\": \"true\",
+          \"splunk-format\": \"json\"
+        }
+      },
+      \"environment\": [
+      {
+        \"name\": \"environment\",
+        \"value\": \"${ARGS[--environment]}\"
+      },
+      {
+        \"name\": \"suffix\",
+        \"value\": \"${ARGS[--suffix]}\"
+      },
+      {
+        \"name\": \"service_name\",
+        \"value\":\"${ARGS[--ecs_service]}\"
+      }
+      ],
+      \"mountPoints\": [
+        {
+          \"sourceVolume\": \"ecs-logs\",
+          \"containerPath\": \"/var/log/apps\",
+          \"readOnly\": false
+        },
+        {
+          \"sourceVolume\": \"ecs-data\",
+          \"containerPath\": \"/usr/local/dropwizards/data\",
+          \"readOnly\": false
+        },
+        {
+          \"sourceVolume\": \"ecs-data\",
+          \"containerPath\": \"/tmp/data\",
+          \"readOnly\": false
+        },
+        {
+          \"sourceVolume\": \"ecs-logs\",
+          \"containerPath\": \"/tmp/logs\",
+          \"readOnly\": false
+        }
+      ]${task_ports_section}
+    }
+  ]"
 }
 
 volume_mount_def(){
