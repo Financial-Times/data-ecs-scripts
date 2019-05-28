@@ -99,7 +99,7 @@ define_volumes() {
   lcl_VOLUME_MOUNT_STRING="'["
   
   
-  local lcl_RECORD_NUMBER=0
+  lcl_RECORD_NUMBER=0
   for SINGLE_RECORD in ${VOLUME_MOUNT_ARRAY[@]}; do
     lcl_RECORD_NUMBER=$((lcl_RECORD_NUMBER + 1))
     lcl_SOURCE_MOUNT_FOLDER="$(cut -d: -f2 <<< ${SINGLE_RECORD})"
