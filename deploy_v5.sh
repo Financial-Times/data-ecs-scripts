@@ -26,6 +26,7 @@
 #  --splunk=${SPLUNK_TOKEN} \
 #  --colour="green" \
 #  --aws_role="FTApplicationRoleFor_passtool"
+#  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
@@ -71,6 +72,90 @@ which aws &>/dev/null || install_aws_cli
 
 echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
+
+#DEFAULT_VOLUME_MOUNTS="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
+VOLUME_MOUNTS=${ARGS[--volume-mounts]}
+
+for SINGLE_RECORD in $(tr \; \  <<< ${VOLUME_MOUNTS}) ; do
+  VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
+done
+
+define_volumes() {
+  local lcl_VOLUME_MOUNTS=${1}
+  local lcl_VOLUME_MOUNT_ARRAY=()
+  local lcl_RECORD_NUMBER=""
+  local lcl_SOURCE_MOUNT_FOLDER=""
+  local lcl_VOLUME_NAME=""
+  local lcl_DESTINATION_MOUNT_FOLDER=""
+  local lcl_READ_ONLY_MOUNT=""
+
+  local lcl_VOLUME_MOUNT_STRING=""    
+
+  for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
+    lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
+  done
+
+
+  lcl_VOLUME_MOUNT_STRING="'["
+  
+  
+  local lcl_RECORD_NUMBER=0
+  for SINGLE_RECORD in ${VOLUME_MOUNT_ARRAY[@]}; do
+    lcl_RECORD_NUMBER=$((RECORD_NUMBER + 1))
+    lcl_SOURCE_MOUNT_FOLDER="$(cut -d: -f2 <<< ${SINGLE_RECORD})"
+    lcl_VOLUME_NAME="$(cut -d: -f1 <<< ${SINGLE_RECORD})"
+    lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING} {\"name\": \"${lcl_VOLUME_NAME}\", \"host\": { \"sourcePath\": \"${lcl_SOURCE_MOUNT_FOLDER}\" }    }"
+    #Check whether this is the last element of the array to decide whether to put a comma
+    if [[ ${lcl_RECORD_NUMBER} != ${#lcl_VOLUME_MOUNT_ARRAY[@]} ]]; then
+      lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING}, "
+    fi
+  done
+
+#  volumes="${lcl_VOLUME_MOUNT_STRING}"
+  echo "${lcl_VOLUME_MOUNT_STRING}"
+}
+
+
+mount_points_def(){
+  local lcl_VOLUME_MOUNTS=${1}
+  local lcl_VOLUME_MOUNT_ARRAY=()
+  local lcl_RECORD_NUMBER=""
+  local lcl_SOURCE_MOUNT_FOLDER=""
+  local lcl_VOLUME_NAME=""
+  local lcl_DESTINATION_MOUNT_FOLDER=""
+  local lcl_READ_ONLY_MOUNT=""
+
+  local lcl_VOLUME_MOUNT_STRING=""    
+
+  for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
+    lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
+  done
+
+  lcl_MOUNT_POINTS_STRING=",\"mountPoints\": ["
+  
+  lcl_RECORD_NUMBER=0
+  for SINGLE_RECORD in ${VOLUME_MOUNT_ARRAY[@]}; do
+    lcl_RECORD_NUMBER=$((lcl_RECORD_NUMBER + 1))
+    lcl_VOLUME_NAME="$(cut -d: -f1 <<< ${SINGLE_RECORD})"
+    lcl_DESTINATION_MOUNT_FOLDER="$(cut -d: -f3 <<< ${SINGLE_RECORD})"
+    lcl_READ_ONLY_MOUNT="$(cut -d: -f4 <<< ${SINGLE_RECORD})"
+    #Yeah, I know it looks stupid. I just wanted to make the parameter more verbose, and decided to reuse the variable afterwards
+    if [[ ${lcl_READ_ONLY_MOUNT} == "read_only_true" ]]; then
+      lcl_READ_ONLY_MOUNT="true"
+    else
+      lcl_READ_ONLY_MOUNT="false"
+    fi
+      lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} { \"sourceVolume\": \"${lcl_VOLUME_NAME}\",  \"containerPath\": \"${lcl_DESTINATION_MOUNT_FOLDER}\", \"readOnly\": ${lcl_READ_ONLY_MOUNT} }"
+    if [[ ${lcl_RECORD_NUMBER} != ${#lcl_VOLUME_MOUNT_ARRAY[@]} ]]; then
+      lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING}, "
+    fi
+  done
+  lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} ]"
+  echo "${lcl_MOUNT_POINTS_STRING}"
+}
+
+volumes=$(define_volumes ${VOLUME_MOUNTS})
+volume_mounts=$(mount_points_def ${VOLUME_MOUNTS})
 
 #We want to be able to add or remove this section dynamically
 make_task_definition(){
@@ -121,51 +206,29 @@ make_task_definition(){
         \"name\": \"service_name\",
         \"value\":\"${ARGS[--ecs_service]}\"
       }
-      ],
-      \"mountPoints\": [
-        {
-          \"sourceVolume\": \"ecs-logs\",
-          \"containerPath\": \"/var/log/apps\",
-          \"readOnly\": false
-        },
-        {
-          \"sourceVolume\": \"ecs-data\",
-          \"containerPath\": \"/usr/local/dropwizards/data\",
-          \"readOnly\": false
-        },
-        {
-          \"sourceVolume\": \"ecs-data\",
-          \"containerPath\": \"/tmp/data\",
-          \"readOnly\": false
-        },
-        {
-          \"sourceVolume\": \"ecs-logs\",
-          \"containerPath\": \"/tmp/logs\",
-          \"readOnly\": false
-        }
-      ]${task_ports_section}
+      ]${volume_mounts}${task_ports_section}
     }
   ]"
 }
 
-volume_mount_def(){
-    volume_mount='[
-        {
-            "name": "ecs-logs",
-            "host": {
-                "sourcePath": "/mnt/ebs/logs/"
-            }
-        },
-        {
-            "name": "ecs-data",
-            "host": {
-                "sourcePath": "/mnt/ebs/data/"
-            }
-        }
-    ]'
-
-    volumes=$(printf "$volume_mount")
-}
+#volume_mount_def(){
+#    volume_mount='[
+#        {
+#            "name": "ecs-logs",
+#            "host": {
+#                "sourcePath": "/mnt/ebs/logs/"
+#            }
+#        },
+#        {
+#            "name": "ecs-data",
+#            "host": {
+#                "sourcePath": "/mnt/ebs/data/"
+#            }
+#        }
+#    ]'
+#
+#    volumes=$(printf "$volume_mount")
+#}
 
 register_task_definition() {
     echo "Registering task definition ${task_def}"
@@ -203,9 +266,12 @@ deploy_cluster() {
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/${ARGS[--aws_role]}"
     echo "Task role is: ${task_role_arn}"
 
+    volumes=$(define_volumes ${VOLUME_MOUNTS})
+    volume_mounts=$(mount_points_def ${VOLUME_MOUNTS})
     make_task_definition
-    volume_mount_def
     #placement_constraint_def
+
+#
     register_task_definition
 
     register_task_definition
