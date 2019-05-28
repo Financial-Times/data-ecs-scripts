@@ -233,7 +233,7 @@ make_task_definition(){
 register_task_definition() {
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
-            --volumes "$volumes" \
+            --volumes $volumes \
             --task-role-arn $task_role_arn \
             --container-definitions "$task_def" \
             --family $family \
