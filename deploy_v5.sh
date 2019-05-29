@@ -25,7 +25,7 @@
 #  --environment="prod" \
 #  --splunk=${SPLUNK_TOKEN} \
 #  --colour="green" \
-#  --aws_role="FTApplicationRoleFor_passtool"
+#  --aws_role="FTApplicationRoleFor_passtool" \
 #  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
@@ -96,7 +96,7 @@ define_volumes() {
   done
 
 
-  lcl_VOLUME_MOUNT_STRING="'["
+  lcl_VOLUME_MOUNT_STRING="["
   
   
   lcl_RECORD_NUMBER=0
@@ -111,7 +111,7 @@ define_volumes() {
     fi
   done
 
-#  volumes="${lcl_VOLUME_MOUNT_STRING}"
+  lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING} ]"
   echo "${lcl_VOLUME_MOUNT_STRING}"
 }
 
@@ -154,8 +154,8 @@ mount_points_def(){
   echo "${lcl_MOUNT_POINTS_STRING}"
 }
 
-volumes=$(define_volumes ${VOLUME_MOUNTS})
-volume_mounts=$(mount_points_def ${VOLUME_MOUNTS})
+#volumes="$(define_volumes ${VOLUME_MOUNTS})"
+#volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
 
 #We want to be able to add or remove this section dynamically
 make_task_definition(){
@@ -233,7 +233,7 @@ make_task_definition(){
 register_task_definition() {
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
-            --volumes $volumes \
+            --volumes "$volumes" \
             --task-role-arn $task_role_arn \
             --container-definitions "$task_def" \
             --family $family \
@@ -266,13 +266,14 @@ deploy_cluster() {
     task_role_arn="arn:aws:iam::${ARGS[--aws_account_id]}:role/${ARGS[--aws_role]}"
     echo "Task role is: ${task_role_arn}"
 
-    volumes=$(define_volumes ${VOLUME_MOUNTS})
-    volume_mounts=$(mount_points_def ${VOLUME_MOUNTS})
-    make_task_definition
-    #placement_constraint_def
+    volumes="$(define_volumes ${VOLUME_MOUNTS})"
+    volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
 
-#
-    register_task_definition
+    echo "$volumes"
+
+    make_task_definition
+
+#    register_task_definition
 
     register_task_definition
 
