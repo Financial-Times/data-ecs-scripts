@@ -158,7 +158,7 @@ mount_points_def(){
     fi
   done
 
-  lcl_VOLUME_MOUNT_STRING="${lcl_MOUNT_POINTS_STRING} ]"
+  lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} ]"
   if [[ ${lcl_RECORD_NUMBER} != 0 ]]; then
     echo "${lcl_MOUNT_POINTS_STRING}"
   else
@@ -245,10 +245,10 @@ make_task_definition(){
 
 register_task_definition() {
     #If there is someting in $volumes set this variable to "--volumes $volumes" otherwise leave it completely empty as there will be no value for the --volumes parameter
-    local lcl_VOLUMES_SWITCH=${volumes:+"--volumes $volumes"}
+    local lcl_VOLUMES_SWITCH=${volumes:+"--volumes"}
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
-            ${lcl_VOLUMES_SWITCH} \
+            ${lcl_VOLUMES_SWITCH} "${volumes}"\
             --task-role-arn $task_role_arn \
             --container-definitions "$task_def" \
             --family $family \
