@@ -92,16 +92,18 @@ define_volumes() {
   local lcl_VOLUME_MOUNT_STRING=""    
 
   for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
+    #Only get the volume definining part of the string, so the logic determining uniqueness works
+    SINGLE_RECORD=$(cut -d: -f1-2 <<< $SINGLE_RECORD)
     lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
   done
   #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string
-  lcl_VOLUME_MOUNTS=($(echo ${lcl_VOLUME_MOUNTS[@]} | tr " " "\n" | sort -u))
+  lcl_VOLUME_MOUNT_ARRAY=($(echo ${lcl_VOLUME_MOUNT_ARRAY[@]} | tr " " "\n" | sort -u))
 
   lcl_VOLUME_MOUNT_STRING="["
   
   
   lcl_RECORD_NUMBER=0
-  for SINGLE_RECORD in ${VOLUME_MOUNT_ARRAY[@]}; do
+  for SINGLE_RECORD in ${lcl_VOLUME_MOUNT_ARRAY[@]}; do
     lcl_RECORD_NUMBER=$((lcl_RECORD_NUMBER + 1))
     lcl_SOURCE_MOUNT_FOLDER="$(cut -d: -f2 <<< ${SINGLE_RECORD})"
     lcl_VOLUME_NAME="$(cut -d: -f1 <<< ${SINGLE_RECORD})"
@@ -141,7 +143,7 @@ mount_points_def(){
   lcl_MOUNT_POINTS_STRING=",\"mountPoints\": ["
   
   lcl_RECORD_NUMBER=0
-  for SINGLE_RECORD in ${VOLUME_MOUNT_ARRAY[@]}; do
+  for SINGLE_RECORD in ${lcl_VOLUME_MOUNT_ARRAY[@]}; do
     lcl_RECORD_NUMBER=$((lcl_RECORD_NUMBER + 1))
     lcl_VOLUME_NAME="$(cut -d: -f1 <<< ${SINGLE_RECORD})"
     lcl_DESTINATION_MOUNT_FOLDER="$(cut -d: -f3 <<< ${SINGLE_RECORD})"
