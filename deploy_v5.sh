@@ -94,7 +94,8 @@ define_volumes() {
   for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
     lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
   done
-
+  #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string
+  lcl_VOLUME_MOUNTS=($(echo ${lcl_VOLUME_MOUNTS[@]} | tr " " "\n" | sort -u))
 
   lcl_VOLUME_MOUNT_STRING="["
   
@@ -112,7 +113,11 @@ define_volumes() {
   done
 
   lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING} ]"
-  echo "${lcl_VOLUME_MOUNT_STRING}"
+  if [[ ${lcl_RECORD_NUMBER} != 0 ]]; then
+    echo "${lcl_VOLUME_MOUNT_STRING}"
+  else
+    echo ""
+  fi
 }
 
 
@@ -130,6 +135,8 @@ mount_points_def(){
   for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
     lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
   done
+  #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string
+  lcl_VOLUME_MOUNT_ARRAY=($(echo ${lcl_VOLUME_MOUNT_ARRAY[@]} | tr " " "\n" | sort -u))
 
   lcl_MOUNT_POINTS_STRING=",\"mountPoints\": ["
   
@@ -150,9 +157,15 @@ mount_points_def(){
       lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING}, "
     fi
   done
-  lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} ]"
-  echo "${lcl_MOUNT_POINTS_STRING}"
+
+  lcl_VOLUME_MOUNT_STRING="${lcl_MOUNT_POINTS_STRING} ]"
+  if [[ ${lcl_RECORD_NUMBER} != 0 ]]; then
+    echo "${lcl_MOUNT_POINTS_STRING}"
+  else
+    echo ""
+  fi
 }
+
 
 #volumes="$(define_volumes ${VOLUME_MOUNTS})"
 #volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
@@ -231,9 +244,11 @@ make_task_definition(){
 #}
 
 register_task_definition() {
+    #If there is someting in $volumes set this variable to "--volumes $volumes" otherwise leave it completely empty as there will be no value for the --volumes parameter
+    local lcl_VOLUMES_SWITCH=${volumes:+"--volumes $volumes"}
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition \
-            --volumes "$volumes" \
+            ${lcl_VOLUMES_SWITCH} \
             --task-role-arn $task_role_arn \
             --container-definitions "$task_def" \
             --family $family \
@@ -247,18 +262,6 @@ register_task_definition() {
 
 }
 
-# make sure you start this containter on Cluster 01 only (required by apps that need access to persistend data)
-#placement_constraint_def(){
-#    placement_constraint_template='[
-#        {
-#            "expression": "attribute:ecs.availability-zone =~ eu-west-1%s",
-#            "type": "memberOf"
-#        }
-#    ]'
-#
-#    placement_constraint=$(printf "$placement_constraint_template" ${ARGS[--zone_constraint]})
-#}
-
 deploy_cluster() {
 
     family="${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}-task-family"
@@ -269,11 +272,7 @@ deploy_cluster() {
     volumes="$(define_volumes ${VOLUME_MOUNTS})"
     volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
 
-    echo "$volumes"
-
     make_task_definition
-
-#    register_task_definition
 
     register_task_definition
 
