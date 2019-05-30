@@ -73,7 +73,6 @@ which aws &>/dev/null || install_aws_cli
 echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
-#DEFAULT_VOLUME_MOUNTS="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
 VOLUME_MOUNTS=${ARGS[--volume-mounts]}
 
 for SINGLE_RECORD in $(tr \; \  <<< ${VOLUME_MOUNTS}) ; do
@@ -86,9 +85,6 @@ define_volumes() {
   local lcl_RECORD_NUMBER=""
   local lcl_SOURCE_MOUNT_FOLDER=""
   local lcl_VOLUME_NAME=""
-  local lcl_DESTINATION_MOUNT_FOLDER=""
-  local lcl_READ_ONLY_MOUNT=""
-
   local lcl_VOLUME_MOUNT_STRING=""    
 
   for SINGLE_RECORD in $(tr \; \  <<< ${lcl_VOLUME_MOUNTS}) ; do
@@ -96,17 +92,18 @@ define_volumes() {
     SINGLE_RECORD=$(cut -d: -f1-2 <<< $SINGLE_RECORD)
     lcl_VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
   done
-  #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string
+  #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string.
   lcl_VOLUME_MOUNT_ARRAY=($(echo ${lcl_VOLUME_MOUNT_ARRAY[@]} | tr " " "\n" | sort -u))
 
+  #Start building up the string with the volumes definition
   lcl_VOLUME_MOUNT_STRING="["
-  
   
   lcl_RECORD_NUMBER=0
   for SINGLE_RECORD in ${lcl_VOLUME_MOUNT_ARRAY[@]}; do
     lcl_RECORD_NUMBER=$((lcl_RECORD_NUMBER + 1))
     lcl_SOURCE_MOUNT_FOLDER="$(cut -d: -f2 <<< ${SINGLE_RECORD})"
     lcl_VOLUME_NAME="$(cut -d: -f1 <<< ${SINGLE_RECORD})"
+    #Add an entry for each defined folume
     lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING} {\"name\": \"${lcl_VOLUME_NAME}\", \"host\": { \"sourcePath\": \"${lcl_SOURCE_MOUNT_FOLDER}\" }    }"
     #Check whether this is the last element of the array to decide whether to put a comma
     if [[ ${lcl_RECORD_NUMBER} != ${#lcl_VOLUME_MOUNT_ARRAY[@]} ]]; then
@@ -114,6 +111,7 @@ define_volumes() {
     fi
   done
 
+  #If no volumes were defined output an empty value
   lcl_VOLUME_MOUNT_STRING="${lcl_VOLUME_MOUNT_STRING} ]"
   if [[ ${lcl_RECORD_NUMBER} != 0 ]]; then
     echo "${lcl_VOLUME_MOUNT_STRING}"
@@ -127,7 +125,6 @@ mount_points_def(){
   local lcl_VOLUME_MOUNTS=${1}
   local lcl_VOLUME_MOUNT_ARRAY=()
   local lcl_RECORD_NUMBER=""
-  local lcl_SOURCE_MOUNT_FOLDER=""
   local lcl_VOLUME_NAME=""
   local lcl_DESTINATION_MOUNT_FOLDER=""
   local lcl_READ_ONLY_MOUNT=""
@@ -140,6 +137,7 @@ mount_points_def(){
   #This should delete the duplicates from the array. Just make sure you dont have whitespace in the volumes string
   lcl_VOLUME_MOUNT_ARRAY=($(echo ${lcl_VOLUME_MOUNT_ARRAY[@]} | tr " " "\n" | sort -u))
 
+  #Start building up the mount points string
   lcl_MOUNT_POINTS_STRING=",\"mountPoints\": ["
   
   lcl_RECORD_NUMBER=0
@@ -155,11 +153,13 @@ mount_points_def(){
       lcl_READ_ONLY_MOUNT="false"
     fi
       lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} { \"sourceVolume\": \"${lcl_VOLUME_NAME}\",  \"containerPath\": \"${lcl_DESTINATION_MOUNT_FOLDER}\", \"readOnly\": ${lcl_READ_ONLY_MOUNT} }"
+    #Add a comma only if this is not the last element
     if [[ ${lcl_RECORD_NUMBER} != ${#lcl_VOLUME_MOUNT_ARRAY[@]} ]]; then
       lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING}, "
     fi
   done
-
+  
+  #Output an empty string if no mount folders were defined
   lcl_MOUNT_POINTS_STRING="${lcl_MOUNT_POINTS_STRING} ]"
   if [[ ${lcl_RECORD_NUMBER} != 0 ]]; then
     echo "${lcl_MOUNT_POINTS_STRING}"
@@ -167,10 +167,6 @@ mount_points_def(){
     echo ""
   fi
 }
-
-
-#volumes="$(define_volumes ${VOLUME_MOUNTS})"
-#volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
 
 #We want to be able to add or remove this section dynamically
 make_task_definition(){
@@ -226,25 +222,6 @@ make_task_definition(){
   ]"
 }
 
-#volume_mount_def(){
-#    volume_mount='[
-#        {
-#            "name": "ecs-logs",
-#            "host": {
-#                "sourcePath": "/mnt/ebs/logs/"
-#            }
-#        },
-#        {
-#            "name": "ecs-data",
-#            "host": {
-#                "sourcePath": "/mnt/ebs/data/"
-#            }
-#        }
-#    ]'
-#
-#    volumes=$(printf "$volume_mount")
-#}
-
 register_task_definition() {
     #If there is someting in $volumes set this variable to "--volumes $volumes" otherwise leave it completely empty as there will be no value for the --volumes parameter
     local lcl_VOLUMES_SWITCH=${volumes:+"--volumes"}
@@ -261,7 +238,6 @@ register_task_definition() {
         echo "Failed to register task definition"
         return 1
     fi
-
 }
 
 deploy_cluster() {
@@ -275,7 +251,6 @@ deploy_cluster() {
     volume_mounts="$(mount_points_def ${VOLUME_MOUNTS})"
 
     make_task_definition
-
     register_task_definition
 
     if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]}-${ARGS[--colour]} \
