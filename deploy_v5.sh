@@ -26,7 +26,8 @@
 #  --splunk=${SPLUNK_TOKEN} \
 #  --colour="green" \
 #  --aws_role="FTApplicationRoleFor_passtool" \
-#  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
+#  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false" \
+#  --structured-logging="false"
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
@@ -70,8 +71,15 @@ install_aws_cli() {
 # Check whether to install aws clis
 which aws &>/dev/null || install_aws_cli
 
-echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
+
+if [ "${ARGS[--structured-logging]}" == "true" ]; then
+  SPLUNK_FORMAT="raw"
+  CONTAINER_ID_STRING='"tag": "containerId=\"{{.ID}}\"",'
+else
+  SPLUNK_FORMAT="json"
+  CONTAINER_ID_STRING=""
+fi
 
 VOLUME_MOUNTS=${ARGS[--volume-mounts]}
 
@@ -201,7 +209,8 @@ make_task_definition(){
           \"splunk-index\": \"data_${ARGS[--environment]}\",
           \"splunk-source\": \"${ARGS[--ecs_service]}\",
           \"splunk-insecureskipverify\": \"true\",
-          \"splunk-format\": \"json\"
+          ${CONTAINER_ID_STRING}
+          \"splunk-format\": \"${SPLUNK_FORMAT}\"
         }
       },
       \"environment\": [
