@@ -28,6 +28,7 @@
 #  --aws_role="FTApplicationRoleFor_passtool" \
 #  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false" \
 #  --structured-logging="false"
+#  --splunk_index_prefix="data_"
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
@@ -193,7 +194,10 @@ make_task_definition(){
       }
     ]"
   fi
-  
+
+  DEFAULT_SPLUNK_INDEX_PREFIX="data_"
+  SPLUNK_INDEX_PREFIX=${ARGS[--splunk_index_prefix]:=$DEFAULT_SPLUNK_INDEX_PREFIX}
+
   task_def="[
     {
       \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
@@ -206,7 +210,7 @@ make_task_definition(){
         \"options\": {
           \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
           \"splunk-token\": \"${ARGS[--splunk]}\",
-          \"splunk-index\": \"data_${ARGS[--environment]}\",
+          \"splunk-index\": \"${SPLUNK_INDEX_PREFIX}${ARGS[--environment]}\",
           \"splunk-source\": \"${ARGS[--ecs_service]}\",
           \"splunk-insecureskipverify\": \"true\",
           ${CONTAINER_ID_STRING}
