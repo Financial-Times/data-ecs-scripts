@@ -27,8 +27,9 @@
 #  --colour="green" \
 #  --aws_role="FTApplicationRoleFor_passtool" \
 #  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false" \
-#  --structured-logging="false"
-#  --splunk_index_prefix="data_"
+#  --structured-logging="false" \
+#  --splunk_index_prefix="data_" \
+#  --hard-cpu-limit=256
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
@@ -49,7 +50,7 @@ VARIABLES_THAT_SHOULD_NOT_BE_EMPTY=(\
   --environment\
   --splunk\
   --colour\
-  --aws_role\
+  --aws_role
 )
 
 #Deliberately fail if a required variable is empty
@@ -59,6 +60,8 @@ for VARIABLE_NAME in ${VARIABLES_THAT_SHOULD_NOT_BE_EMPTY[@]}; do
     exit 1
   fi
 done
+
+#ULIMITS_SNIPPETS=()
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -87,6 +90,32 @@ VOLUME_MOUNTS=${ARGS[--volume-mounts]}
 for SINGLE_RECORD in $(tr \; \  <<< ${VOLUME_MOUNTS}) ; do
   VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
 done
+
+#Build the ulimits snipped if the appropriate trigger has been passed to the script
+if [ ! -z "${ARGS[--hard-cpu-limit]}" ]; then
+  #Make the separator to newline, which makes it possible to add strings that contain spaces as a single array element
+  IFS=$'\n'
+  #Builds a limit string that will go in the ECS task definition for the CPU limit
+  ULIMITS_CPU_HARD_LIMIT=("{ \"Name\": \"cpu\", \"Soft\": ${ARGS[--hard-cpu-limit]}, \"Hard\": ${ARGS[--hard-cpu-limit]} }")
+  #Append this particular string to an array that contains all limits, which will be used to build the final limits string
+  ULIMITS_SNIPPLETS+=("${ULIMITS_CPU_HARD_LIMIT}")
+  unset IFS
+fi
+
+#Start building the limits string if any limits have been specified
+if [ "${#ULIMITS_SNIPPLETS[@]}" -gt 0 ]; then
+  IFS=$'\n'
+  CURRENT_ELEMENT=0
+  ULIMITS_STRING+=$'"ulimits": [\n'
+  for LIMIT in ${ULIMITS_SNIPPLETS[@]}; do
+    CURRENT_ELEMENT=$((CURRENT_ELEMENT+1))
+    ULIMITS_STRING+="        ${LIMIT}"
+    if [ "${#ULIMITS_SNIPPLETS[@]}" != "${CURRENT_ELEMENT}" ]; then ULIMITS_STRING+=$',\n' ; fi
+  done
+  ULIMITS_STRING+=$'\n      ],'
+  unset IFS
+fi
+##End of ulimits string generation section
 
 define_volumes() {
   local lcl_VOLUME_MOUNTS=${1}
@@ -205,6 +234,7 @@ make_task_definition(){
       \"essential\": true,
       \"memory\": ${ARGS[--memory]},
       \"cpu\": ${ARGS[--cpu]},
+      ${ULIMITS_STRING}
       \"logConfiguration\": {
         \"logDriver\": \"splunk\",
         \"options\": {
