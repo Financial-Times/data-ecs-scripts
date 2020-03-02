@@ -96,7 +96,7 @@ if [ ! -z "${ARGS[--hard-cpu-limit]}" ]; then
   #Make the separator to newline, which makes it possible to add strings that contain spaces as a single array element
   IFS=$'\n'
   #Builds a limit string that will go in the ECS task definition for the CPU limit
-  ULIMITS_CPU_HARD_LIMIT=("{ \"Name\": \"cpu\", \"Soft\": ${ARGS[--hard-cpu-limit]}, \"Hard\": ${ARGS[--hard-cpu-limit]} }")
+  ULIMITS_CPU_HARD_LIMIT=("{ \"name\": \"cpu\", \"softLimit\": ${ARGS[--hard-cpu-limit]}, \"hardLimit\": ${ARGS[--hard-cpu-limit]} }")
   #Append this particular string to an array that contains all limits, which will be used to build the final limits string
   ULIMITS_SNIPPLETS+=("${ULIMITS_CPU_HARD_LIMIT}")
   unset IFS
