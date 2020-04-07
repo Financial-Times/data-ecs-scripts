@@ -26,7 +26,10 @@
 #  --splunk=${SPLUNK_TOKEN} \
 #  --colour="green" \
 #  --aws_role="FTApplicationRoleFor_passtool" \
-#  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false"
+#  --volume-mounts="ecs-logs:/mnt/source1:/mount/destination1/:read_only_true;ecs-data:/mnt/source2:/mnt/destination2/:read_only_false" \
+#  --structured-logging="false" \
+#  --splunk_index_prefix="data_" \
+#  --hard-cpu-limit=256
 
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
@@ -47,7 +50,7 @@ VARIABLES_THAT_SHOULD_NOT_BE_EMPTY=(\
   --environment\
   --splunk\
   --colour\
-  --aws_role\
+  --aws_role
 )
 
 #Deliberately fail if a required variable is empty
@@ -57,6 +60,8 @@ for VARIABLE_NAME in ${VARIABLES_THAT_SHOULD_NOT_BE_EMPTY[@]}; do
     exit 1
   fi
 done
+
+#ULIMITS_SNIPPETS=()
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
@@ -70,14 +75,47 @@ install_aws_cli() {
 # Check whether to install aws clis
 which aws &>/dev/null || install_aws_cli
 
-echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
+
+if [ "${ARGS[--structured-logging]}" == "true" ]; then
+  SPLUNK_FORMAT="raw"
+  CONTAINER_ID_STRING='"tag": "containerId=\"{{.ID}}\"",'
+else
+  SPLUNK_FORMAT="json"
+  CONTAINER_ID_STRING=""
+fi
 
 VOLUME_MOUNTS=${ARGS[--volume-mounts]}
 
 for SINGLE_RECORD in $(tr \; \  <<< ${VOLUME_MOUNTS}) ; do
   VOLUME_MOUNT_ARRAY+=("$SINGLE_RECORD")
 done
+
+#Build the ulimits snipped if the appropriate trigger has been passed to the script
+if [ ! -z "${ARGS[--hard-cpu-limit]}" ]; then
+  #Make the separator to newline, which makes it possible to add strings that contain spaces as a single array element
+  IFS=$'\n'
+  #Builds a limit string that will go in the ECS task definition for the CPU limit
+  ULIMITS_CPU_HARD_LIMIT=("{ \"name\": \"cpu\", \"softLimit\": ${ARGS[--hard-cpu-limit]}, \"hardLimit\": ${ARGS[--hard-cpu-limit]} }")
+  #Append this particular string to an array that contains all limits, which will be used to build the final limits string
+  ULIMITS_SNIPPLETS+=("${ULIMITS_CPU_HARD_LIMIT}")
+  unset IFS
+fi
+
+#Start building the limits string if any limits have been specified
+if [ "${#ULIMITS_SNIPPLETS[@]}" -gt 0 ]; then
+  IFS=$'\n'
+  CURRENT_ELEMENT=0
+  ULIMITS_STRING+=$'"ulimits": [\n'
+  for LIMIT in ${ULIMITS_SNIPPLETS[@]}; do
+    CURRENT_ELEMENT=$((CURRENT_ELEMENT+1))
+    ULIMITS_STRING+="        ${LIMIT}"
+    if [ "${#ULIMITS_SNIPPLETS[@]}" != "${CURRENT_ELEMENT}" ]; then ULIMITS_STRING+=$',\n' ; fi
+  done
+  ULIMITS_STRING+=$'\n      ],'
+  unset IFS
+fi
+##End of ulimits string generation section
 
 define_volumes() {
   local lcl_VOLUME_MOUNTS=${1}
@@ -185,7 +223,10 @@ make_task_definition(){
       }
     ]"
   fi
-  
+
+  DEFAULT_SPLUNK_INDEX_PREFIX="data_"
+  SPLUNK_INDEX_PREFIX=${ARGS[--splunk_index_prefix]:=$DEFAULT_SPLUNK_INDEX_PREFIX}
+
   task_def="[
     {
       \"name\": \"${ARGS[--ecs_service]}-${ARGS[--suffix]}-${ARGS[--colour]}\",
@@ -193,15 +234,17 @@ make_task_definition(){
       \"essential\": true,
       \"memory\": ${ARGS[--memory]},
       \"cpu\": ${ARGS[--cpu]},
+      ${ULIMITS_STRING}
       \"logConfiguration\": {
         \"logDriver\": \"splunk\",
         \"options\": {
           \"splunk-url\": \"https://http-inputs-financialtimes.splunkcloud.com\",
           \"splunk-token\": \"${ARGS[--splunk]}\",
-          \"splunk-index\": \"data_${ARGS[--environment]}\",
+          \"splunk-index\": \"${SPLUNK_INDEX_PREFIX}${ARGS[--environment]}\",
           \"splunk-source\": \"${ARGS[--ecs_service]}\",
           \"splunk-insecureskipverify\": \"true\",
-          \"splunk-format\": \"json\"
+          ${CONTAINER_ID_STRING}
+          \"splunk-format\": \"${SPLUNK_FORMAT}\"
         }
       },
       \"environment\": [
