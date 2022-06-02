@@ -38,14 +38,13 @@ aws ecr get-login-password | \
         --password-stdin ${ARGS[--aws_account_id]}.dkr.ecr.${ARGS[--aws_region]}.amazonaws.com
 
 echo "Verify repository exists"
-aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} 
-#&>/dev/null || \
+aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} #&>/dev/null || \
 #aws ecr create-repository --repository-name ${ARGS[--image_name]}
 
 echo "Tag image"
 docker tag ${ARGS[--service_name]}:${ARGS[--image_version]} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--service_name]}:${ARGS[--image_version]}
 
-
+echo "${ARGS[--ecr_endpoint]}/${ARGS[--service_name]}:${ARGS[--image_version]}"
 echo "Pushing image to ECR"
 docker push ${ARGS[--ecr_endpoint]}/${ARGS[--service_name]}:${ARGS[--image_version]}
