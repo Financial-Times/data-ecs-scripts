@@ -38,7 +38,7 @@ aws ecr get-login-password | \
         --password-stdin ${ARGS[--aws_account_id]}.dkr.ecr.${ARGS[--aws_region]}.amazonaws.com
 
 echo "Verify repository exists"
-aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} #&>/dev/null || \
+aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} &>/dev/null || \
 #aws ecr create-repository --repository-name ${ARGS[--image_name]}
 
 echo "Tag image"
