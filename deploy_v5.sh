@@ -260,6 +260,11 @@ make_task_definition(){
         \"name\": \"service_name\",
         \"value\":\"${ARGS[--ecs_service]}\"
       }
+      },
+      {
+        \"name\": \"AWS_REGION\",
+        \"value\":\"${ARGS[--aws-region]}\"
+      }
       ]${volume_mounts}${task_ports_section}
     }
   ]"
