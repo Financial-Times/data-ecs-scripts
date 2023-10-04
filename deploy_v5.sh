@@ -259,7 +259,6 @@ make_task_definition(){
       {
         \"name\": \"service_name\",
         \"value\":\"${ARGS[--ecs_service]}\"
-      }
       },
       {
         \"name\": \"AWS_REGION\",
