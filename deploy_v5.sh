@@ -263,7 +263,7 @@ make_task_definition(){
       },
       {
         \"name\": \"AWS_REGION\",
-        \"value\":\"${ARGS[--aws-region]}\"
+        \"value\":\"${ARGS[--aws_region]}\"
       }
       ]${volume_mounts}${task_ports_section}
     }
