@@ -79,7 +79,6 @@ make_task_definition(){
 			    {
 			        "name": "service_name",
 			        "value":"%s"
-			    }
 			    },
 			    {
 			        "name": "AWS_REGION",

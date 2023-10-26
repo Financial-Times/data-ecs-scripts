@@ -75,7 +75,6 @@ make_task_definition(){
 			    {
 			        "name": "suffix",
 			        "value": "%s"
-			    }
 			    },
 			    {
 			        "name": "AWS_REGION",
