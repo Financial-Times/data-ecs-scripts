@@ -47,11 +47,15 @@ make_task_def() {
   			    {
   			        \"name\": \"suffix\",
   			        \"value\": \"${ARGS[--suffix]}\"
-            },
+                },
   			    {
   			        \"name\": \"context\",
   			        \"value\": \"${ARGS[--context]}\"
-  			    }
+  			    },
+                {
+                    \"name\": \"AWS_REGION\",
+                    \"value\": \"${ARGS[--aws_region]}\"
+                }
   			],
   			\"mountPoints\": [
             {

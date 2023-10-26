@@ -55,7 +55,11 @@ make_task_def() {
   			    {
   			        \"name\": \"ENABLE_VAULT\",
   			        \"value\": \"${ARGS[--enable_vault]}\"
-  			    }
+  			    },
+                {
+                    \"name\": \"AWS_REGION\",
+                    \"value\": \"${ARGS[--aws_region]}\"
+                }
   			],
   			\"mountPoints\": [
             {

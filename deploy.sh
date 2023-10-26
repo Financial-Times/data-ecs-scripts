@@ -80,6 +80,11 @@ make_task_definition(){
 			        "name": "service_name",
 			        "value":"%s"
 			    }
+			    },
+			    {
+			        "name": "AWS_REGION",
+			        "value":"%s"
+			    }
 			],
 			"mountPoints": [
                 {
@@ -130,6 +135,7 @@ make_task_definition(){
                                        ${ARGS[--environment]} \
                                        ${ARGS[--suffix]} \
                                        ${ARGS[--ecs_service]} \
+                                       ${ARGS[--aws_region]} \
                                        ${ARGS[--port1]} \
                                        ${ARGS[--port2]} )
 }

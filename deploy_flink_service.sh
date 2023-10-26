@@ -135,6 +135,10 @@ make_task_def() {
                 \"value\": \"${ARGS[--context]}\"
             },
             {
+                \"name\": \"AWS_REGION\",
+                \"value\": \"${ARGS[--aws_region]}\"
+            },
+            {
                 \"name\": \"JOB_MANAGER_RPC_ADDRESS\",
                 \"value\": \"jobmanager\"
             },
